@@ -28,55 +28,54 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         int count = getItemCount();
         int width = getWidth();
         int height = getHeight();
+        fill(recycler, state);
 
-
-        int start = 0;
-        if (currentPosition != 0)
-            start = currentPosition - 3 > 0 ? currentPosition - 3 : 0;
-        for (int i = 0; i < count; i++) {
-            View view = recycler.getViewForPosition(i);
-            addView(view);
-            measureChildWithMargins(view, 0, 0);
-            int verticalSpace = getHeight() - getDecoratedMeasuredHeight(view);
-            int horizontalSpace = getWidth() - getDecoratedMeasuredWidth(view);
-            int childW = view.getMeasuredWidth();
-            int childH = view.getMeasuredHeight();
-
+//        int start = 0;
+//        if (currentPosition != 0)
+//            start = currentPosition - 3 > 0 ? currentPosition - 3 : 0;
+//        for (int i = start; i < count; i++) {
+//            View view = recycler.getViewForPosition(i);
+//            addView(view);
+//            measureChildWithMargins(view, 0, 0);
+//            int verticalSpace = getHeight() - getDecoratedMeasuredHeight(view);
+//            int horizontalSpace = getWidth() - getDecoratedMeasuredWidth(view);
+//            int childW = view.getMeasuredWidth();
+//            int childH = view.getMeasuredHeight();
+//
 //            if (unit <= 0)
 //                unit = childW + interval;
-//
-//            int left = left(i);
-//            float alpha = alpha(i);
-//            float scale = scale(i);
-//            layoutDecoratedWithMargins(view,left,verticalSpace/2,left+childW,verticalSpace/2+childH);
-//            view.setScaleY(scale);
-//            view.setAlpha(alpha);
-            if (unit <= 0)
-                unit = childW + interval;
-            if (i == currentPosition) {
-                Log.i(TAG, "onLayoutChildren: i == currentPosition");
-                layoutDecoratedWithMargins(view, interval * 3, verticalSpace / 2, interval * 3 + childW, childH + verticalSpace / 2);
-            } else if (i < currentPosition) {
-                layoutDecoratedWithMargins(view, getLeftAtPosition(i), verticalSpace / 2, getLeftAtPosition(i) + childW, verticalSpace / 2 + childH);
-                float alpha = getAlphaAtPosition(i);
-                float scale = getScaleAtPosition(i);
-                Log.i(TAG, "onLayoutChildren: i< currentPosition alpha: " + alpha + "  scale:" + scale);
-                view.setAlpha(alpha);
-                view.setScaleY(scale);
-            } else {
-                if (i - currentPosition == 1) {
-                    int left = view.getMeasuredWidth() + interval * 4;
-                    float scale = getScaleAtPosition(i);
-                    float alpha = getAlphaAtPosition(i);
-                    Log.i(TAG, "onLayoutChildren: i< currentPosition left: " + left + "  scale:" + scale);
-                    layoutDecoratedWithMargins(view, left, verticalSpace / 2, left + childW, verticalSpace / 2 + childH);
-                    view.setAlpha(alpha);
-                    view.setScaleY(scale);
-                }
-            }
-        }
+//            if (i == currentPosition) {
+//                Log.i(TAG, "onLayoutChildren: i == currentPosition");
+//                layoutDecoratedWithMargins(view, interval * 3, verticalSpace / 2, interval * 3 + childW, childH + verticalSpace / 2);
+//            } else if (i < currentPosition) {
+//                layoutDecoratedWithMargins(view, getLeftAtPosition(i), verticalSpace / 2, getLeftAtPosition(i) + childW, verticalSpace / 2 + childH);
+//                float alpha = getAlphaAtPosition(i);
+//                float scale = getScaleAtPosition(i);
+//                Log.i(TAG, "onLayoutChildren: i< currentPosition alpha: " + alpha + "  scale:" + scale);
+//                view.setAlpha(alpha);
+//                view.setScaleY(scale);
+//            } else {
+//                if (i - currentPosition == 1) {
+//                    int left = view.getMeasuredWidth() + interval * 4;
+//                    float scale = getScaleAtPosition(i);
+//                    float alpha = getAlphaAtPosition(i);
+//                    Log.i(TAG, "onLayoutChildren: i< currentPosition left: " + left + "  scale:" + scale);
+//                    layoutDecoratedWithMargins(view, left, verticalSpace / 2, left + childW, verticalSpace / 2 + childH);
+//                    view.setAlpha(alpha);
+//                    view.setScaleY(scale);
+//                }
+//            }
+//        }
 
-        Log.i(TAG, "onLayoutChildren:))))))))))))))))))))))))))))))))))))))))DONE!!!! ");
+    }
+
+    /**
+     * @link {https://github.com/mcxtzhang/ZLayoutManager/blob/master/layoutmanager/src/main/java/com/mcxtzhang/layoutmanager/flow/FlowLayoutManager.java}
+     * @param recycler
+     * @param state
+     */
+    private void fill(RecyclerView.Recycler recycler, RecyclerView.State state) {
+
     }
 
     public int getLeftAtPosition(int position) {
@@ -191,10 +190,10 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         Log.i(TAG, "scrollHorizontallyBy: " + dx);
 
         int consumeX = 0;
-        int count = getItemCount();
+        int count = getChildCount();
         totalOffset += dx;
         for (int i = 0; i < count; i++) {
-            View child = recycler.getViewForPosition(i);
+            View child = getChildAt(i);
             int position = getPosition(child);
             float alpha = alpha(position);
             float left = left(position);
@@ -202,7 +201,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             Log.i(TAG, "scrollHorizontallyBy: position:" + position + "alpha:" + alpha + "---left:" + left + "---scale:" + scale);
             child.setAlpha(alpha);
             child.setScaleY(scale);
-            child.setLeft((int) left);
+            child.offsetLeftAndRight((int) (left - child.getLeft()));
         }
 
         return dx;

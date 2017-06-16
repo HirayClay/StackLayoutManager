@@ -39,8 +39,8 @@ public class MainActivity extends AppCompatActivity {
         datas.add("Fury");
         datas.add("Weiry");
         datas.add("PingTong");
-//        datas.add("RoserMan");
-//        datas.add("BreakingBad");
+        datas.add("RoserMan");
+        datas.add("BreakingBad");
 
         recyclerview.setLayoutManager(new StackLayoutManager());
         recyclerview.setAdapter(new StackAdapter(datas));
