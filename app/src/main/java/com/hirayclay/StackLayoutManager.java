@@ -23,12 +23,11 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-        Log.i(TAG, "onLayoutChildren: ");
         detachAndScrapAttachedViews(recycler);
         int count = getItemCount();
         int width = getWidth();
         int height = getHeight();
-        fill(recycler, state);
+        fill(recycler, state, 0);
 
 //        int start = 0;
 //        if (currentPosition != 0)
@@ -70,54 +69,32 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
-     * @link {https://github.com/mcxtzhang/ZLayoutManager/blob/master/layoutmanager/src/main/java/com/mcxtzhang/layoutmanager/flow/FlowLayoutManager.java}
      * @param recycler
      * @param state
+     * @link {https://github.com/mcxtzhang/ZLayoutManager/blob/master/layoutmanager/src/main/java/com/mcxtzhang/layoutmanager/flow/FlowLayoutManager.java}
      */
-    private void fill(RecyclerView.Recycler recycler, RecyclerView.State state) {
+    private void fill(RecyclerView.Recycler recycler, RecyclerView.State state, int dy) {
+        int tempTotalOffset = totalOffset + dy;
+        int count = getChildCount();
 
-    }
-
-    public int getLeftAtPosition(int position) {
-        int i = currentPosition - position;
-
-        if (position == currentPosition)
-            return interval * 3;
-
-        if (position < currentPosition) {
-            if (i == 1)
-                return interval * 2;
-            if (i == 2)
-                return interval;
-            if (i == 3)
-                return 0;
+        //removeAndRecycle  views
+        for (int i = 0; i < count; i++) {
+            View child = getChildAt(i);
+            if (shouldRecycle(getPosition(child), dy))
+                removeAndRecycleView(child, recycler);
         }
 
-        return 0;
-    }
+        //layout view
+        for (int i = 0; i < getItemCount(); i++) {
+            View view = recycler.getViewForPosition(i);
+            if (!shouldRecycle(i, dy)) {
 
+            }
 
-    public float getAlphaAtPosition(int position) {
-        int offset = currentPosition - position;
-        if (offset > 0) {
-            float alpha = 1 - 0.1f * offset;
-            if (alpha <= 0.7f)
-                return 0f;
-            else return alpha;
-        } else return 1.0f;
+        }
 
     }
 
-
-    public float getScaleAtPosition(int position) {
-        int offset = currentPosition - position;
-        if (offset > 0) {
-            float scale = 1 - 0.1f * offset;
-            if (scale < 0.7f)
-                return 0f;
-            else return scale;
-        } else return 0.9f;
-    }
 
     /******************************precise math method*******************************/
     public float alpha(int position) {
@@ -175,6 +152,24 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         return left;
     }
 
+    /**
+     * should recycle view with the given dy or say check if the
+     * view is out of the bound after the dy is applied
+     *
+     * @param position
+     * @param dy
+     * @return
+     */
+    public boolean shouldRecycle(int position, int dy) {
+        int futureOffset = totalOffset + dy;
+        int curPos = futureOffset / unit;
+        float n = (futureOffset + 0f) / unit;
+        int curLeft = (int) ((3 - n + curPos) * interval + (position - curPos) * unit);
+        if (position < curPos - 3 || curLeft > getWidth())
+            return true;
+        return false;
+    }
+
     public float interpolator(@FloatRange(from = 0f, to = 1.0f) float input) {
         return (float) (Math.sqrt(input * input));
     }
@@ -220,6 +215,48 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 //        }
 //        setMeasuredDimension(View.MeasureSpec.getSize(widthSpec), height);
 //    }
+
+
+    public int getLeftAtPosition(int position) {
+        int i = currentPosition - position;
+
+        if (position == currentPosition)
+            return interval * 3;
+
+        if (position < currentPosition) {
+            if (i == 1)
+                return interval * 2;
+            if (i == 2)
+                return interval;
+            if (i == 3)
+                return 0;
+        }
+
+        return 0;
+    }
+
+
+    public float getAlphaAtPosition(int position) {
+        int offset = currentPosition - position;
+        if (offset > 0) {
+            float alpha = 1 - 0.1f * offset;
+            if (alpha <= 0.7f)
+                return 0f;
+            else return alpha;
+        } else return 1.0f;
+
+    }
+
+
+    public float getScaleAtPosition(int position) {
+        int offset = currentPosition - position;
+        if (offset > 0) {
+            float scale = 1 - 0.1f * offset;
+            if (scale < 0.7f)
+                return 0f;
+            else return scale;
+        } else return 0.9f;
+    }
 
     @Override
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
