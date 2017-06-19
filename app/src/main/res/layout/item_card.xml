@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="200dp"
-    android:layout_height="150dp"
+    android:layout_width="300dp"
+    android:layout_height="200dp"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="0dp">
 
-    <ImageView
-        android:layout_width="200dp"
-        android:layout_height="150dp"
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:id="@+id/cover"
+        android:layout_width="300dp"
+        android:layout_height="200dp"
         android:scaleType="fitXY"
+        app:riv_corner_radius="8dp"
         android:src="@color/colorPrimary" />
 
     <TextView
         android:id="@+id/name"
         tools:text="Item 1"
+        android:layout_centerInParent="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#fff" />
