@@ -44,43 +44,6 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         unit = anchorView.getMeasuredWidth() + interval;
         fill(recycler, 0);
 
-//        int start = 0;
-//        if (currentPosition != 0)
-//            start = currentPosition - 3 > 0 ? currentPosition - 3 : 0;
-//        for (int i = start; i < count; i++) {
-//            View view = recycler.getViewForPosition(i);
-//            addView(view);
-//            measureChildWithMargins(view, 0, 0);
-//            int verticalSpace = getHeight() - getDecoratedMeasuredHeight(view);
-//            int horizontalSpace = getWidth() - getDecoratedMeasuredWidth(view);
-//            int childW = view.getMeasuredWidth();
-//            int childH = view.getMeasuredHeight();
-//
-//            if (unit <= 0)
-//                unit = childW + interval;
-//            if (i == currentPosition) {
-//                Log.i(TAG, "onLayoutChildren: i == currentPosition");
-//                layoutDecoratedWithMargins(view, interval * 3, verticalSpace / 2, interval * 3 + childW, childH + verticalSpace / 2);
-//            } else if (i < currentPosition) {
-//                layoutDecoratedWithMargins(view, getLeftAtPosition(i), verticalSpace / 2, getLeftAtPosition(i) + childW, verticalSpace / 2 + childH);
-//                float alpha = getAlphaAtPosition(i);
-//                float scale = getScaleAtPosition(i);
-//                Log.i(TAG, "onLayoutChildren: i< currentPosition alpha: " + alpha + "  scale:" + scale);
-//                view.setAlpha(alpha);
-//                view.setScaleY(scale);
-//            } else {
-//                if (i - currentPosition == 1) {
-//                    int left = view.getMeasuredWidth() + interval * 4;
-//                    float scale = getScaleAtPosition(i);
-//                    float alpha = getAlphaAtPosition(i);
-//                    Log.i(TAG, "onLayoutChildren: i< currentPosition left: " + left + "  scale:" + scale);
-//                    layoutDecoratedWithMargins(view, left, verticalSpace / 2, left + childW, verticalSpace / 2 + childH);
-//                    view.setAlpha(alpha);
-//                    view.setScaleY(scale);
-//                }
-//            }
-//        }
-
     }
 
     /**
@@ -292,18 +255,6 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
      */
     public boolean shouldRecycle(View view/*int position*/, int dy) {
         return view.getLeft() - dy < 0 || view.getRight() - dy > getWidth();
-//        if (unit == 0) {
-//            return false;
-//        }
-
-//        int futureOffset = totalOffset + dy;
-//        int curPos = futureOffset / unit;
-//        float n = (futureOffset + 0f) / unit;
-//        //assume the position > curPos so left > width ,otherwise <
-//        int curLeft = (int) ((3 - n + curPos) * interval + (position - curPos) * unit);
-//        if (position < curPos - 3 || curLeft > getWidth())
-//            return true;
-//        return false;
     }
 
 
