@@ -86,7 +86,6 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     /**
      * @param recycler
      * @param state
-     * @link {https://github.com/mcxtzhang/ZLayoutManager/blob/master/layoutmanager/src/main/java/com/mcxtzhang/layoutmanager/flow/FlowLayoutManager.java}
      */
     private int fill(RecyclerView.Recycler recycler, RecyclerView.State state, int dy) {
         this.recycler = recycler;
