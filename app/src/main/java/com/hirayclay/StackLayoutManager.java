@@ -14,7 +14,7 @@ import android.view.View;
 /**
  * Created by CJJ on 2017/5/17.
  * 思路比较简单：假设初始状态下第一个item所在的位置是基准位置，那么在给定滚动距离的情况下，每个item应该
- * 在什么位置，其实就是一个对应关系的问题，理清楚这个对应关系就很容易实现这个layoutManager
+ * 在什么位置，其实就是计算一个对应关系的问题，类似f(x)=Nx，理清楚这个对应关系就很容易实现这个layoutManager
  *
  * @author CJJ
  */
@@ -30,7 +30,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     private int itemUnit;
     ObjectAnimator animator;
     private int animateValue;
-    private int duration = 600;
+    private int duration = 400;
     private RecyclerView.Recycler recycler;
     private int lastAnimateValue;
 
@@ -42,7 +42,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         measureChildWithMargins(anchorView, 0, 0);
         itemUnit = anchorView.getMeasuredWidth();
         unit = anchorView.getMeasuredWidth() + interval;
-        fill(recycler, state, 0);
+        fill(recycler, 0);
 
 //        int start = 0;
 //        if (currentPosition != 0)
@@ -85,19 +85,14 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 
     /**
      * @param recycler
-     * @param state
      */
-    private int fill(RecyclerView.Recycler recycler, RecyclerView.State state, int dy) {
+    private int fill(RecyclerView.Recycler recycler, int dy) {
         this.recycler = recycler;
-        if (totalOffset + dy < 0 || (totalOffset + dy + 0f) / unit >= getItemCount() - 1)
+        if (totalOffset + dy < 0 || (totalOffset + dy + 0f) / unit > getItemCount()-1)
             return 0;
-
         detachAndScrapAttachedViews(recycler);
         totalOffset += dy;
         int count = getChildCount();
-//        if (BuildConfig.DEBUG)
-//            Log.i(TAG, "fill: childCount:==============" + count);
-
         //removeAndRecycle  views
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
@@ -139,6 +134,12 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         view.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN
+                        && animator != null
+                        && animator.isRunning())
+                    animator.cancel();
+
+
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     int o = totalOffset % unit;
                     int scrollX;
@@ -146,6 +147,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
                         if (o >= unit / 2)
                             scrollX = unit - o;
                         else scrollX = -o;
+//                        int dur= (int) (Math.abs((scrollX+0f)/unit)*duration);
                         brewAndStartAnimator(duration, scrollX);
                     }
                 }
@@ -272,7 +274,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         this.animateValue = animateValue;
         Log.i("OFFSET", "setAnimateValue: " + animateValue);
         int dy = this.animateValue - lastAnimateValue;
-        fill(recycler, null, dy);
+        fill(recycler, dy);
         lastAnimateValue = animateValue;
     }
 
@@ -308,7 +310,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler, RecyclerView.State state) {
 
-        return fill(recycler, state, dx);
+        return fill(recycler, dx);
     }
 
     public float interpolator(@FloatRange(from = 0f, to = 1.0f) float input) {
