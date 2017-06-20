@@ -1,1 +1,1 @@
-![](https://github.com/HirayClay/StackLayoutManager/raw/master/static/arg.gif "poor picture quality")<br>
+<img src="static/capture1.gif" width="360" height="645"/>
