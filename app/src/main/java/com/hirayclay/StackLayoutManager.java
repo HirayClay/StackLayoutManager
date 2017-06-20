@@ -2,10 +2,6 @@ package com.hirayclay;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
-import android.os.Build;
-import android.support.annotation.FloatRange;
-import android.support.v7.widget.ForwardingListener;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -13,8 +9,10 @@ import android.view.View;
 
 /**
  * Created by CJJ on 2017/5/17.
- * 思路比较简单：假设初始状态下第一个item所在的位置是基准位置，那么在给定滚动距离的情况下，每个item应该
- * 在什么位置，其实就是计算一个对应关系的问题，类似f(x)=Nx，理清楚这个对应关系就很容易实现这个layoutManager
+ * my thought is simple：we assume the first item in the initial state is the base position ，
+ * we only need to calculate the appropriate position{@link #left(int index)}for the given item
+ * index with the given offset{@link #mTotalOffset}.After solve this thinking confusion ,this
+ * layoutManager is easy to implement
  *
  * @author CJJ
  */
@@ -24,37 +22,67 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     private static final String TAG = "StackLayoutManager";
 
 
-    int interval = 60;
-    int unit;
-    int totalOffset;
-    private int itemUnit;
+    //the space unit for the stacked item
+    int mSpace = 60;
+    //the offset unit,deciding current position(the sum of one child's width and one space)
+    int mUnit;
+    //the counting variable ,record the total offset
+    int mTotalOffset;
     ObjectAnimator animator;
     private int animateValue;
-    private int duration = 400;
+    private int duration = 300;
     private RecyclerView.Recycler recycler;
     private int lastAnimateValue;
+    private int maxStackCount = 4;//the max stacked item count;
+    private int initialStackCount = 4;//initial stacked item
+    private float secondaryScale = 0.8f;
+    private int initialOffset;
+    private boolean initial;
+
+    public StackLayoutManager(Config config) {
+        this.maxStackCount = config.maxStackCount;
+        this.mSpace = config.space;
+        this.initialStackCount = config.initialStackCount;
+        this.secondaryScale = config.secondaryScale;
+    }
+
+    public StackLayoutManager() {
+    }
 
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+        this.recycler = recycler;
         detachAndScrapAttachedViews(recycler);
-        //got the unit basing on the first child,of course we assume that  all the item has the same size
+        //got the mUnit basing on the first child,of course we assume that  all the item has the same size
         View anchorView = recycler.getViewForPosition(0);
         measureChildWithMargins(anchorView, 0, 0);
-        itemUnit = anchorView.getMeasuredWidth();
-        unit = anchorView.getMeasuredWidth() + interval;
+        mUnit = anchorView.getMeasuredWidth() + mSpace;
+        //because this method will be called twice
+        initialOffset = initialStackCount * mUnit;
         fill(recycler, 0);
 
     }
 
+    @Override
+    public void onLayoutCompleted(RecyclerView.State state) {
+        super.onLayoutCompleted(state);
+        Log.i(TAG, "onLayoutCompleted: ");
+        if (!initial) {
+            fill(recycler, initialOffset);
+            initial = true;
+        }
+    }
+
     /**
+     * the magic function :).all the work including computing ,recycling,and layout is done here
+     *
      * @param recycler
      */
     private int fill(RecyclerView.Recycler recycler, int dy) {
-        this.recycler = recycler;
-        if (totalOffset + dy < 0 || (totalOffset + dy + 0f) / unit > getItemCount()-1)
+        if (mTotalOffset + dy < 0 || (mTotalOffset + dy + 0f) / mUnit > getItemCount() - 1)
             return 0;
         detachAndScrapAttachedViews(recycler);
-        totalOffset += dy;
+        mTotalOffset += dy;
         int count = getChildCount();
         //removeAndRecycle  views
         for (int i = 0; i < count; i++) {
@@ -64,11 +92,11 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         }
 
 
-        int curPos = totalOffset / unit;
-        float n = (totalOffset + 0f) / unit;
+        int curPos = mTotalOffset / mUnit;
+        float n = (mTotalOffset + 0f) / mUnit;
         float x = n % 1f;
-        int start = curPos - 3 >= 0 ? curPos - 3 : 0;
-        int end = curPos + 3 > getItemCount() ? getItemCount() : curPos + 3;
+        int start = curPos - maxStackCount >= 0 ? curPos - maxStackCount : 0;
+        int end = curPos + maxStackCount > getItemCount() ? getItemCount() : curPos + maxStackCount;
 
         //layout view
         for (int i = start; i < end; i++) {
@@ -93,7 +121,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onAttachedToWindow(RecyclerView view) {
         super.onAttachedToWindow(view);
-        //check when raise finger and settle to the target item
+        //check when raise finger and settle to the appropriate item
         view.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -104,13 +132,13 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 
 
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    int o = totalOffset % unit;
+                    int o = mTotalOffset % mUnit;
                     int scrollX;
                     if (o != 0) {
-                        if (o >= unit / 2)
-                            scrollX = unit - o;
+                        if (o >= mUnit / 2)
+                            scrollX = mUnit - o;
                         else scrollX = -o;
-//                        int dur= (int) (Math.abs((scrollX+0f)/unit)*duration);
+//                        int dur= (int) (Math.abs((scrollX+0f)/mUnit)*duration);
                         brewAndStartAnimator(duration, scrollX);
                     }
                 }
@@ -120,17 +148,17 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         view.setOnFlingListener(new RecyclerView.OnFlingListener() {
             @Override
             public boolean onFling(int velocityX, int velocityY) {
-                int N = totalOffset / unit;
-                float n = (totalOffset + 0f) / unit;
-                int o = totalOffset % unit;
-                int s = unit - o;
+                int N = mTotalOffset / mUnit;
+                float n = (mTotalOffset + 0f) / mUnit;
+                int o = mTotalOffset % mUnit;
+                int s = mUnit - o;
                 int scrollX;
                 if (velocityX > 0) {
                     scrollX = s;
                 } else
                     scrollX = -o;
                 if (BuildConfig.DEBUG)
-                    Log.i(TAG, "onFling: ===res:===" + (1f - n + N) + "========scrollX=" + (scrollX + 0f) / unit);
+                    Log.i(TAG, "onFling: ===res:===" + (1f - n + N) + "========scrollX=" + (scrollX + 0f) / mUnit);
                 int dur = duration;
                 brewAndStartAnimator(dur, scrollX);
                 return true;
@@ -155,7 +183,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 
             @Override
             public void onAnimationCancel(Animator animation) {
-
+                lastAnimateValue = 0;
             }
 
             @Override
@@ -168,37 +196,40 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     /******************************precise math method*******************************/
     public float alpha(int position) {
         float alpha;
-        int curPos = totalOffset / unit;
-        float n = (totalOffset + 0.0f) / unit;
+        int curPos = mTotalOffset / mUnit;
+        float n = (mTotalOffset + 0.0f) / mUnit;
         if (position > curPos)
             alpha = 1.0f;
         else {
             //temporary linear map,barely ok
-            float o = 1 - (n - position) / 3;
+            float o = 1 - (n - position) / maxStackCount;
             alpha = o;
         }
-        //for precise checking
+        //for precise checking,oh may be kind of foolish
         return alpha <= 0.001f ? 0 : alpha;
     }
 
     public float scale(int position) {
         float scale;
-        int curPos = this.totalOffset / unit;
-        float n = (totalOffset + 0.0f) / unit;
+        int curPos = this.mTotalOffset / mUnit;
+        float n = (mTotalOffset + 0.0f) / mUnit;
         float x = n - curPos;
         // position >= curPos+1;
         if (position >= curPos) {
             if (position == curPos)
-                scale = 1 - 0.3f * (n - curPos) / 3f;
+                scale = 1 - 0.3f * (n - curPos) / (maxStackCount + 0f);
             else if (position == curPos + 1)
-                //让curPosition+1 位置的item在划过unit一半的距离就有scale =1，视觉效果好一些
-                scale = 0.8f + (0.4f * x >= 0.2f ? 0.2f : 0.4f * x);
-            else scale = 0.8f;
+            //let the item's (index:position+1) scale be 1 when the item offset 1/2 mUnit,
+            // this have better visual
+            {
+//                scale = 0.8f + (0.4f * x >= 0.2f ? 0.2f : 0.4f * x);
+                scale = secondaryScale + (x > 0.5f ? 1 - secondaryScale : 2 * (1 - secondaryScale) * x);
+            } else scale = secondaryScale;
         } else {//position <= curPos
-            if (position < curPos - 3)
+            if (position < curPos - maxStackCount)
                 scale = 0f;
             else {
-                scale = 1f - 0.3f * (n - curPos + curPos - position) / 3f;
+                scale = 1f - 0.3f * (n - curPos + curPos - position) / (maxStackCount + 0f);
             }
         }
         return scale;
@@ -206,28 +237,26 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
-     * @param position the target position
-     * @return
+     * @param position the index of the item in the adapter
+     * @return the appropriate left for the given item
      */
     public int left(int position) {
 
-        int left = 0;
-        int curPos = totalOffset / unit;
-        float n = (totalOffset + 0.0f) / unit;
+        int left;
+        int curPos = mTotalOffset / mUnit;
+        float n = (mTotalOffset + 0.0f) / mUnit;
         float x = n - curPos;
         if (position <= curPos) {
 
             if (position == curPos) {
-                left = (int) (interval * (3 - x));
+                left = (int) (mSpace * (maxStackCount - x));
             } else {
-                left = (int) (interval * (3 - x - (curPos - position)));
+                left = (int) (mSpace * (maxStackCount - x - (curPos - position)));
 
             }
         } else {
-            left = interval * 3 + position * unit - totalOffset;
+            left = mSpace * maxStackCount + position * mUnit - mTotalOffset;
             left = left <= 0 ? 0 : left;
-            if (position == 0)
-                Log.i(TAG, "left: @@@@@@@@@@@@@@@@@@@@@" + left);
         }
         return left;
     }
@@ -235,7 +264,6 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 
     public void setAnimateValue(int animateValue) {
         this.animateValue = animateValue;
-        Log.i("OFFSET", "setAnimateValue: " + animateValue);
         int dy = this.animateValue - lastAnimateValue;
         fill(recycler, dy);
         lastAnimateValue = animateValue;
@@ -260,33 +288,13 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler, RecyclerView.State state) {
-
         return fill(recycler, dx);
-    }
-
-    public float interpolator(@FloatRange(from = 0f, to = 1.0f) float input) {
-        return (float) (Math.sqrt(input * input));
     }
 
     @Override
     public boolean canScrollHorizontally() {
-//        Log.i(TAG, "canScrollHorizontally: ");
         return true;
     }
-
-//    @Override
-//    public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state, int widthSpec, int heightSpec) {
-//        super.onMeasure(recycler, state, widthSpec, heightSpec);
-//        int count = getChildCount();
-//        int height = 0;
-//        for (int i = 0; i < count; i++) {
-//            View child = getChildAt(i);
-//            measureChildWithMargins(child, widthSpec, heightSpec);
-//            height = Math.max(height, child.getHeight());
-//        }
-//        setMeasuredDimension(View.MeasureSpec.getSize(widthSpec), height);
-//    }
-
 
     @Override
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
