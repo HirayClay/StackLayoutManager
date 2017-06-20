@@ -9,7 +9,7 @@ this is the relevant [blog](http://blog.csdn.net/u014296305/article/details/7349
 <img src="static/stackmanager3.gif" width="0px" height="0px"/>
 
 # Usage
-...java
+```java
 
 Config config = new Config();
 config.secondaryScale = 0.8f;
@@ -20,5 +20,5 @@ config.space = 70;
 recyclerview.setLayoutManager(new StackLayoutManager(config));
 recyclerview.setAdapter(new StackAdapter(datas));
 
-...java
+```
 
