@@ -36,6 +36,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     private int maxStackCount = 4;//the max stacked item count;
     private int initialStackCount = 4;//initial stacked item
     private float secondaryScale = 0.8f;
+    private float scaleRatio = 0.4f;
     private int initialOffset;
     private boolean initial;
 
@@ -44,6 +45,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         this.mSpace = config.space;
         this.initialStackCount = config.initialStackCount;
         this.secondaryScale = config.secondaryScale;
+        this.scaleRatio = config.scaleRatio;
     }
 
     public StackLayoutManager() {
@@ -205,7 +207,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             float o = 1 - (n - position) / maxStackCount;
             alpha = o;
         }
-        //for precise checking,oh may be kind of foolish
+        //for precise checking,oh may be kind of dummy
         return alpha <= 0.001f ? 0 : alpha;
     }
 
@@ -217,7 +219,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         // position >= curPos+1;
         if (position >= curPos) {
             if (position == curPos)
-                scale = 1 - 0.3f * (n - curPos) / (maxStackCount + 0f);
+                scale = 1 - scaleRatio * (n - curPos) / maxStackCount;
             else if (position == curPos + 1)
             //let the item's (index:position+1) scale be 1 when the item offset 1/2 mUnit,
             // this have better visual effect
@@ -229,11 +231,10 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             if (position < curPos - maxStackCount)
                 scale = 0f;
             else {
-                scale = 1f - 0.3f * (n - curPos + curPos - position) / (maxStackCount + 0f);
+                scale = 1f - scaleRatio * (n - curPos + curPos - position) / maxStackCount;
             }
         }
         return scale;
-
     }
 
     /**

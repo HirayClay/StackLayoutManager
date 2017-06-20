@@ -6,20 +6,32 @@
     android:layout_height="200dp"
     android:padding="0dp">
 
-    <com.makeramen.roundedimageview.RoundedImageView
-        android:id="@+id/cover"
+
+    <android.support.v7.widget.CardView
         android:layout_width="300dp"
         android:layout_height="200dp"
-        android:scaleType="fitXY"
-        android:src="@color/colorPrimary"
-        app:riv_corner_radius="8dp" />
+        android:clickable="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:stateListAnimator="@animator/item_animator"
+        app:cardPreventCornerOverlap="false"
+        app:cardCornerRadius="8dp"
+        app:cardUseCompatPadding="true"
+        tools:targetApi="lollipop">
 
-    <TextView
-        android:id="@+id/name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:textColor="#fff"
-        android:visibility="gone"
-        tools:text="Item 1" />
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/cover"
+            android:layout_width="300dp"
+            android:layout_height="200dp"
+            android:scaleType="fitXY"
+            android:src="@color/colorPrimary" />
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textColor="#fff"
+            android:visibility="gone"
+            tools:text="Item 1" />
+    </android.support.v7.widget.CardView>
 </RelativeLayout>

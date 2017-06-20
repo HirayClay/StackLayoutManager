@@ -17,5 +17,7 @@ public class Config {
     public int initialStackCount = 0;
     @FloatRange(from = 0f, to = 1f)
     public float secondaryScale;
+    @FloatRange(from = 0f, to = 1f)
+    public float scaleRatio;
 
 }
