@@ -1,5 +1,5 @@
 # Why
-i was inspired by this project [android-pile-layout](https://github.com/xmuSistone/android-pile-layout) ,the author cannot find the appropriate math model with LayoutManager ,so i try to do the UI with layoutManager,barely ok with the result.</br>
+A long long time ago ,i was inspired by this project [android-pile-layout](https://github.com/xmuSistone/android-pile-layout) ,the author cannot find the appropriate math model with LayoutManager .Now i have some spare time and try to do the UI with layoutManager,barely ok with the result.</br>
 
 # Blog
 this is the relevant [blog](http://blog.csdn.net/u014296305/article/details/73496017) ,i hope it helps to understanding it</br>
