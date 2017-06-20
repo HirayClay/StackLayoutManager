@@ -221,7 +221,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             if (position == curPos)
                 scale = 1 - scaleRatio * (n - curPos) / maxStackCount;
             else if (position == curPos + 1)
-            //let the item's (index:position+1) scale be 1 when the item offset 1/2 mUnit,
+            //let the item's (index:position+1) scale be 1 when the item slide 1/2 mUnit,
             // this have better visual effect
             {
 //                scale = 0.8f + (0.4f * x >= 0.2f ? 0.2f : 0.4f * x);
