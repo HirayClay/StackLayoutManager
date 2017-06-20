@@ -18,8 +18,6 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.recyclerview)
     RecyclerView recyclerview;
 
-    int animateValue;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,20 +41,14 @@ public class MainActivity extends AppCompatActivity {
         datas.add("Item10");
         datas.add("Item11");
 
+        Config config = new Config();
+        config.secondaryScale = 0.8f;
+        config.scaleRatio = 0.5f;
+        config.maxStackCount = 3;
+        config.initialStackCount = 2;
+        config.space = 70;
         recyclerview.setLayoutManager(new StackLayoutManager());
         recyclerview.setAdapter(new StackAdapter(datas));
 
-        ObjectAnimator animator = ObjectAnimator.ofInt(MainActivity.this, "animateValue", 0, 200);
-        animator.setDuration(300);
-        animator.start();
-    }
-
-    public int getAnimateValue() {
-        return animateValue;
-    }
-
-    public void setAnimateValue(int animateValue) {
-        this.animateValue = animateValue;
-        Log.i(TAG, "setAnimateValue: " + animateValue);
     }
 }
