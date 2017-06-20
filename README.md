@@ -10,13 +10,15 @@ this is the relevant [blog](http://blog.csdn.net/u014296305/article/details/7349
 
 # Usage
 ...java
-  Config config = new Config();
-  config.secondaryScale = 0.8f;
-  config.scaleRatio = 0.5f;
-  config.maxStackCount = 3;
-  config.initialStackCount = 2;
-  config.space = 70;
-  recyclerview.setLayoutManager(new StackLayoutManager(config));
-  recyclerview.setAdapter(new StackAdapter(datas));
+
+Config config = new Config();
+config.secondaryScale = 0.8f;
+config.scaleRatio = 0.5f;
+config.maxStackCount = 3;
+config.initialStackCount = 2;
+config.space = 70;
+recyclerview.setLayoutManager(new StackLayoutManager(config));
+recyclerview.setAdapter(new StackAdapter(datas));
+
 ...java
 
