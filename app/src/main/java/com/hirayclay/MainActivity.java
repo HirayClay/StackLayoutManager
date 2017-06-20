@@ -43,8 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
         Config config = new Config();
         config.secondaryScale = 0.8f;
-        config.scaleRatio = 0.5f;
-        config.maxStackCount = 3;
+        config.scaleRatio = 0.4f;
+        config.maxStackCount = 4;
         config.initialStackCount = 2;
         config.space = 70;
         recyclerview.setLayoutManager(new StackLayoutManager());
