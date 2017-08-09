@@ -52,6 +52,7 @@ public class StackAdapter extends RecyclerView.Adapter<StackAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Glide.with(context).load(imageUrls.get(position)).into(holder.cover);
+        holder.index.setText(String.valueOf(position));
     }
 
     @Override
@@ -61,9 +62,12 @@ public class StackAdapter extends RecyclerView.Adapter<StackAdapter.ViewHolder> 
 
     class ViewHolder extends RecyclerView.ViewHolder {
         ImageView cover;
+        TextView index;
+
         public ViewHolder(View itemView) {
             super(itemView);
             cover = (ImageView) itemView.findViewById(R.id.cover);
+            index = (TextView) itemView.findViewById(R.id.index);
         }
     }
 }

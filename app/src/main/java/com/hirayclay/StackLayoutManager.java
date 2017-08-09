@@ -2,10 +2,14 @@ package com.hirayclay;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.LoginFilter;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewConfiguration;
 
 /**
  * Created by CJJ on 2017/5/17.
@@ -39,6 +43,9 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     private float scaleRatio = 0.4f;
     private int initialOffset;
     private boolean initial;
+    private int mMinVelocityX;
+    private VelocityTracker mVelocityTracker = VelocityTracker.obtain();
+    private int pointerId;
 
     public StackLayoutManager(Config config) {
         this.maxStackCount = config.maxStackCount;
@@ -47,6 +54,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         this.secondaryScale = config.secondaryScale;
         this.scaleRatio = config.scaleRatio;
     }
+
 
     public StackLayoutManager() {
     }
@@ -61,6 +69,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         mUnit = anchorView.getMeasuredWidth() + mSpace;
         //because this method will be called twice
         initialOffset = initialStackCount * mUnit;
+        mMinVelocityX = ViewConfiguration.get(anchorView.getContext()).getScaledMinimumFlingVelocity();
         fill(recycler, 0);
 
     }
@@ -70,6 +79,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         super.onLayoutCompleted(state);
         Log.i(TAG, "onLayoutCompleted: ");
         if (!initial) {
+            Log.i(TAG, "onLayoutCompleted: Initial");
             fill(recycler, initialOffset);
             initial = true;
         }
@@ -125,33 +135,42 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         super.onAttachedToWindow(view);
         //check when raise finger and settle to the appropriate item
         view.setOnTouchListener(new View.OnTouchListener() {
+
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN
-                        && animator != null
-                        && animator.isRunning())
-                    animator.cancel();
+                mVelocityTracker.addMovement(event);
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (animator != null
+                            && animator.isRunning())
+                        animator.cancel();
+                    pointerId = event.getPointerId(0);
+
+                }
 
 
                 if (event.getAction() == MotionEvent.ACTION_UP) {
+                    mVelocityTracker.computeCurrentVelocity(1000, 14000);
+                    float xVelocity = VelocityTrackerCompat.getXVelocity(mVelocityTracker, pointerId);
+
                     int o = mTotalOffset % mUnit;
                     int scrollX;
-                    if (o != 0) {
-                        if (o >= mUnit / 2)
-                            scrollX = mUnit - o;
-                        else scrollX = -o;
-//                        int dur= (int) (Math.abs((scrollX+0f)/mUnit)*duration);
-                        brewAndStartAnimator(duration, scrollX);
-                    }
+                    if (Math.abs(xVelocity) < mMinVelocityX)
+                        if (o != 0) {
+                            if (o >= mUnit / 2)
+                                scrollX = mUnit - o;
+                            else scrollX = -o;
+                            int dur = (int) (Math.abs((scrollX + 0f) / mUnit) * duration);
+                            brewAndStartAnimator(dur, scrollX);
+                        }
                 }
                 return false;
             }
+
         });
+
         view.setOnFlingListener(new RecyclerView.OnFlingListener() {
             @Override
             public boolean onFling(int velocityX, int velocityY) {
-                int N = mTotalOffset / mUnit;
-                float n = (mTotalOffset + 0f) / mUnit;
                 int o = mTotalOffset % mUnit;
                 int s = mUnit - o;
                 int scrollX;
@@ -159,9 +178,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
                     scrollX = s;
                 } else
                     scrollX = -o;
-                if (BuildConfig.DEBUG)
-                    Log.i(TAG, "onFling: ===res:===" + (1f - n + N) + "========scrollX=" + (scrollX + 0f) / mUnit);
-                int dur = duration;
+                int dur = (int) (6000f / Math.abs(velocityX) * duration);
                 brewAndStartAnimator(dur, scrollX);
                 return true;
             }
@@ -175,7 +192,6 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         animator.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
-
             }
 
             @Override

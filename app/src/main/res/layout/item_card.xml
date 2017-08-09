@@ -23,5 +23,13 @@
             android:layout_height="200dp"
             android:scaleType="fitXY"
             android:src="@color/colorPrimary" />
+        <TextView
+            android:id="@+id/index"
+            android:layout_width="18dp"
+            android:gravity="center"
+            android:layout_gravity="right|top"
+            android:background="@drawable/circle_shape"
+            android:layout_margin="10dp"
+            android:layout_height="18dp" />
     </android.support.v7.widget.CardView>
 </RelativeLayout>
