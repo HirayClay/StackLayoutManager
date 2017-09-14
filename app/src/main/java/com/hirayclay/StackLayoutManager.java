@@ -1,6 +1,7 @@
 package com.hirayclay;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v7.widget.RecyclerView;
@@ -185,11 +186,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         animator = ObjectAnimator.ofInt(StackLayoutManager.this, "animateValue", 0, finalX);
         animator.setDuration(dur);
         animator.start();
-        animator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-            }
-
+        animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 lastAnimateValue = 0;
@@ -198,11 +195,6 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             @Override
             public void onAnimationCancel(Animator animation) {
                 lastAnimateValue = 0;
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
             }
         });
     }
