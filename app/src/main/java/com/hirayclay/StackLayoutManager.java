@@ -203,7 +203,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     public float alpha(int position) {
         float alpha;
         int curPos = mTotalOffset / mUnit;
-        float n = (mTotalOffset + 0.0f) / mUnit;
+        float n = (mTotalOffset + .0f) / mUnit;
         if (position > curPos)
             alpha = 1.0f;
         else {
@@ -218,7 +218,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     public float scale(int position) {
         float scale;
         int curPos = this.mTotalOffset / mUnit;
-        float n = (mTotalOffset + 0.0f) / mUnit;
+        float n = (mTotalOffset + .0f) / mUnit;
         float x = n - curPos;
         // position >= curPos+1;
         if (position >= curPos) {
@@ -249,7 +249,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 
         int left;
         int curPos = mTotalOffset / mUnit;
-        float n = (mTotalOffset + 0.0f) / mUnit;
+        float n = (mTotalOffset + .0f) / mUnit;
         float x = n - curPos;
         if (position <= curPos) {
 
