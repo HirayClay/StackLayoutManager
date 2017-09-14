@@ -4,8 +4,6 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v7.widget.RecyclerView;
-import android.text.LoginFilter;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -77,9 +75,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onLayoutCompleted(RecyclerView.State state) {
         super.onLayoutCompleted(state);
-        Log.i(TAG, "onLayoutCompleted: ");
         if (!initial) {
-            Log.i(TAG, "onLayoutCompleted: Initial");
             fill(recycler, initialOffset);
             initial = true;
         }
@@ -178,7 +174,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
                     scrollX = s;
                 } else
                     scrollX = -o;
-                int dur = (int) (6000f / Math.abs(velocityX) * duration);
+                int dur = (int) (3000f / Math.abs(velocityX) * duration);
                 brewAndStartAnimator(dur, scrollX);
                 return true;
             }
