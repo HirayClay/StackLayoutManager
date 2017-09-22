@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         config.maxStackCount = 4;
         config.initialStackCount = 2;
         config.space = 70;
-        recyclerview.setLayoutManager(new StackLayoutManager());
+        recyclerview.setLayoutManager(new StackLayoutManager(config));
         recyclerview.setAdapter(new StackAdapter(datas));
 
     }

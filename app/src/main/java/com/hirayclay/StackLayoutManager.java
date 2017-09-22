@@ -175,11 +175,18 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
                     scrollX = s;
                 } else
                     scrollX = -o;
-                int dur = (int) (3000f / Math.abs(velocityX) * duration);
+                int dur = computeSettleDuration(Math.abs(scrollX), Math.abs(velocityX))/* (int) (3000f / Math.abs(velocityX) * duration)*/;
                 brewAndStartAnimator(dur, scrollX);
                 return true;
             }
         });
+    }
+
+    int computeSettleDuration(int distance, float xvel) {
+        float sWeight = 0.5f * distance / mUnit;
+        float velWeight = 0.5f * mMinVelocityX / xvel;
+
+        return (int) ((sWeight + velWeight) * duration);
     }
 
     private void brewAndStartAnimator(int dur, int finalX) {
