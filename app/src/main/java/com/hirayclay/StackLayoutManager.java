@@ -126,6 +126,10 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         return dy;
     }
 
+    @Override
+    public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state, int widthSpec, int heightSpec) {
+
+    }
 
     @Override
     public void onAttachedToWindow(RecyclerView view) {
@@ -267,7 +271,16 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 
             }
         } else {
-            left = mSpace * maxStackCount + position * mUnit - mTotalOffset;
+
+            if (position == curPos + 2) {
+                float prevItemScale = scale(position - 1);
+                left = (int) (mSpace * maxStackCount + position * mUnit - mTotalOffset -(1-prevItemScale)*(mUnit- mSpace));
+
+            } else {
+                left = mSpace * maxStackCount + position * mUnit - mTotalOffset;
+
+            }
+
             left = left <= 0 ? 0 : left;
         }
         return left;

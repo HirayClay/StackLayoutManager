@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">StackLayoutManager</string>
+    <string name="StackLayoutManager">com.hirayclay.StackLayoutManager</string>
 </resources>
