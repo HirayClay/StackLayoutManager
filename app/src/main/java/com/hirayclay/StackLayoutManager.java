@@ -10,6 +10,9 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 
+import static com.hirayclay.Align.LEFT;
+import static com.hirayclay.Align.RIGHT;
+
 /**
  * Created by CJJ on 2017/5/17.
  * my thought is simple：we assume the first item in the initial state is the base position ，
@@ -45,6 +48,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     private int mMinVelocityX;
     private VelocityTracker mVelocityTracker = VelocityTracker.obtain();
     private int pointerId;
+    private Align direction = LEFT;
 
     public StackLayoutManager(Config config) {
         this.maxStackCount = config.maxStackCount;
@@ -73,6 +77,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 
     }
 
+
     @Override
     public void onLayoutCompleted(RecyclerView.State state) {
         super.onLayoutCompleted(state);
@@ -88,10 +93,58 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
      * @param recycler
      */
     private int fill(RecyclerView.Recycler recycler, int dy) {
+        if (direction == LEFT)
+            return fillFromLeft(recycler, dy);
+        if (direction == RIGHT)
+            return fillFromRight(recycler, dy);
+        else return dy;
+    }
+
+    private int fillFromRight(RecyclerView.Recycler recycler, int dy) {
+
         if (mTotalOffset + dy < 0 || (mTotalOffset + dy + 0f) / mUnit > getItemCount() - 1)
             return 0;
         detachAndScrapAttachedViews(recycler);
-        mTotalOffset += dy;
+        mTotalOffset += direction.sign * dy;
+        int count = getChildCount();
+        //removeAndRecycle  views
+        for (int i = 0; i < count; i++) {
+            View child = getChildAt(i);
+            if (child != null && shouldRecycle(child, dy))
+                removeAndRecycleView(child, recycler);
+        }
+
+
+        int curPos = mTotalOffset / mUnit;
+        float n = (mTotalOffset + 0f) / mUnit;
+        float x = n % 1f;
+        int start = curPos - maxStackCount >= 0 ? curPos - maxStackCount : 0;
+        int end = curPos + maxStackCount > getItemCount() ? getItemCount() : curPos + maxStackCount;
+
+        //layout view
+        for (int i = start; i < end; i++) {
+            View view = recycler.getViewForPosition(i);
+
+            float scale = scale(i);
+            float alpha = alpha(i);
+
+            addView(view);
+            measureChildWithMargins(view, 0, 0);
+            int left = (int) (left(i) - (1 - scale) * view.getMeasuredWidth() / 2);
+            layoutDecoratedWithMargins(view, left, 0, left + view.getMeasuredWidth(), view.getMeasuredHeight());
+            view.setAlpha(alpha);
+            view.setScaleY(scale);
+            view.setScaleX(scale);
+        }
+
+        return dy;
+    }
+
+    private int fillFromLeft(RecyclerView.Recycler recycler, int dy) {
+        if (mTotalOffset + dy < 0 || (mTotalOffset + dy + 0f) / mUnit > getItemCount() - 1)
+            return 0;
+        detachAndScrapAttachedViews(recycler);
+        mTotalOffset += direction.sign * dy;
         int count = getChildCount();
         //removeAndRecycle  views
         for (int i = 0; i < count; i++) {
@@ -207,7 +260,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /******************************precise math method*******************************/
-    public float alpha(int position) {
+    private float alpha(int position) {
         float alpha;
         int curPos = mTotalOffset / mUnit;
         float n = (mTotalOffset + .0f) / mUnit;
@@ -222,27 +275,44 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         return alpha <= 0.001f ? 0 : alpha;
     }
 
-    public float scale(int position) {
+    private float scale(int position) {
         float scale;
         int curPos = this.mTotalOffset / mUnit;
         float n = (mTotalOffset + .0f) / mUnit;
         float x = n - curPos;
-        // position >= curPos+1;
-        if (position >= curPos) {
-            if (position == curPos)
-                scale = 1 - scaleRatio * (n - curPos) / maxStackCount;
-            else if (position == curPos + 1)
+
+
+        float tail;
+        switch (direction) {
+            default:
+            case TOP:
+            case LEFT:
+                tail = x;
+                break;
+            case BOTTOM:
+            case RIGHT:
+                tail = 1 - x;
+                break;
+
+        }
+        if (position > curPos) {
             //let the item's (index:position+1) scale be 1 when the item slide 1/2 mUnit,
             // this have better visual effect
-            {
+            if (position == curPos + 1 && direction == LEFT) {
 //                scale = 0.8f + (0.4f * x >= 0.2f ? 0.2f : 0.4f * x);
                 scale = secondaryScale + (x > 0.5f ? 1 - secondaryScale : 2 * (1 - secondaryScale) * x);
             } else scale = secondaryScale;
-        } else {//position <= curPos
-            if (position < curPos - maxStackCount)
+        } else if (position == curPos) {
+            scale = 1 - scaleRatio * tail / maxStackCount;
+        } else {
+
+            if (position == curPos - 1 && direction == RIGHT) {
+//                scale = 0.8f + (0.4f * x >= 0.2f ? 0.2f : 0.4f * x);
+                scale = secondaryScale + (x > 0.5f ? 1 - secondaryScale : 2 * (1 - secondaryScale) * x);
+            } else if ((position < curPos - maxStackCount && direction == LEFT) || (position > curPos + maxStackCount && direction == RIGHT))
                 scale = 0f;
             else {
-                scale = 1f - scaleRatio * (n - curPos + curPos - position) / maxStackCount;
+                scale = 1f - scaleRatio * (/*n - curPos*/tail + curPos - position) / maxStackCount;
             }
         }
         return scale;
@@ -252,12 +322,14 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
      * @param position the index of the item in the adapter
      * @return the appropriate left for the given item
      */
-    public int left(int position) {
+    private int left(int position) {
 
         int left;
         int curPos = mTotalOffset / mUnit;
+        int tail = mTotalOffset % mUnit;
         float n = (mTotalOffset + .0f) / mUnit;
         float x = n - curPos;
+
         if (position <= curPos) {
 
             if (position == curPos) {
@@ -267,7 +339,13 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 
             }
         } else {
-            left = mSpace * maxStackCount + position * mUnit - mTotalOffset;
+            if (position == curPos + 1)
+                left = mSpace * maxStackCount + (position - curPos) * mUnit - tail;
+            else {
+                float closestBaseItemScale = scale(position - 1);
+
+                left = (int) (mSpace * maxStackCount + (position - curPos) * mUnit - tail - (mUnit - mSpace) * (1 - closestBaseItemScale));
+            }
             left = left <= 0 ? 0 : left;
         }
         return left;

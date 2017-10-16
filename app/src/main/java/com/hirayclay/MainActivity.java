@@ -29,24 +29,24 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.button)
     public void setData() {
         List<String> datas = new ArrayList<>();
-        datas.add("Item1");
-        datas.add("Item2");
-        datas.add("Item3");
-        datas.add("Item4");
-        datas.add("Item5");
-        datas.add("Item6");
-        datas.add("Item7");
-        datas.add("Item8");
-        datas.add("Item9");
-        datas.add("Item10");
-        datas.add("Item11");
+        datas.add("1");
+        datas.add("2");
+        datas.add("3");
+        datas.add("4");
+        datas.add("5");
+        datas.add("6");
+        datas.add("7");
+        datas.add("8");
+        datas.add("9");
+        datas.add("10");
+        datas.add("11");
 
         Config config = new Config();
         config.secondaryScale = 0.8f;
         config.scaleRatio = 0.4f;
         config.maxStackCount = 4;
-        config.initialStackCount = 2;
-        config.space = 70;
+        config.initialStackCount = 0;
+        config.space = 40;
         recyclerview.setLayoutManager(new StackLayoutManager(config));
         recyclerview.setAdapter(new StackAdapter(datas));
 
