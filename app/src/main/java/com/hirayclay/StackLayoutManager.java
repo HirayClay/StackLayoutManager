@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.ViewConfiguration;
 
 /**
@@ -128,7 +129,11 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state, int widthSpec, int heightSpec) {
-
+        detachAndScrapAttachedViews(recycler);
+        View anchorView = recycler.getViewForPosition(0);
+        measureChildWithMargins(anchorView,0,0);
+        int height  = anchorView.getMeasuredHeight();
+        super.onMeasure(recycler,state,widthSpec, MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
     }
 
     @Override
@@ -320,6 +325,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     public boolean canScrollHorizontally() {
         return true;
     }
+
 
     @Override
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
