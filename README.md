@@ -5,11 +5,11 @@ A long long time ago ,i was inspired by this project [android-pile-layout](https
 this is the relevant [blog](http://blog.csdn.net/u014296305/article/details/73496017) ,i hope it helps to understanding it</br>
 
 # Display
-<img src="static/art.gif"/>
+<img src="static/hrreverse.gif"/>
 <img src="static/stackmanager3.gif" width="0px" height="0px"/></br>
 
 ### Demo Apk
-[download](static/app.apk)
+[download](static/app_hr.apk)
 
 # Usage
 ```java
@@ -20,6 +20,7 @@ config.scaleRatio = 0.5f;
 config.maxStackCount = 3;
 config.initialStackCount = 2;
 config.space = 70;
+config.align= Align.RIGHT//
 recyclerview.setLayoutManager(new StackLayoutManager(config));
 recyclerview.setAdapter(new StackAdapter(datas));
 

@@ -16,28 +16,25 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.recyclerview)
     RecyclerView recyclerview;
 
+    //horizontal reverse recyclerview
+    @Bind(R.id.recyclerview1)
+    RecyclerView hrRecyclerView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         resetDefault();
+        resetRight();
     }
 
     @OnClick(R.id.button)
     public void resetDefault() {
         List<String> datas = new ArrayList<>();
-        datas.add("1");
-        datas.add("2");
-        datas.add("3");
-        datas.add("4");
-        datas.add("5");
-        datas.add("6");
-        datas.add("7");
-        datas.add("8");
-        datas.add("9");
-        datas.add("10");
-        datas.add("11");
+        for (int i = 0; i < 15; i++) {
+            datas.add(String.valueOf(i));
+        }
 
         Config config = new Config();
         config.secondaryScale = 0.8f;
@@ -54,17 +51,9 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.button1)
     public void resetRight() {
         List<String> datas = new ArrayList<>();
-        datas.add("1");
-        datas.add("2");
-        datas.add("3");
-        datas.add("4");
-        datas.add("5");
-        datas.add("6");
-        datas.add("7");
-        datas.add("8");
-        datas.add("9");
-        datas.add("10");
-        datas.add("11");
+        for (int i = 0; i < 15; i++) {
+            datas.add(String.valueOf(i));
+        }
 
         Config config = new Config();
         config.secondaryScale = 0.8f;
@@ -72,9 +61,9 @@ public class MainActivity extends AppCompatActivity {
         config.maxStackCount = 4;
         config.initialStackCount = 0;
         config.space = 40;
-        config.align = Align.RIGHT;
-        recyclerview.setLayoutManager(new StackLayoutManager(config));
-        recyclerview.setAdapter(new StackAdapter(datas));
 
+        config.align = Align.RIGHT;
+        hrRecyclerView.setLayoutManager(new StackLayoutManager(config));
+        hrRecyclerView.setAdapter(new StackAdapter(datas));
     }
 }
