@@ -42,6 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:overScrollMode="never"
+        app:max_stack="6"
         app:layoutManager="@string/stacklayoutmanager"
         tools:listitem="@layout/item_card" />
 

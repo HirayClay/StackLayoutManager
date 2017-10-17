@@ -33,7 +33,11 @@ public class StackAdapter extends RecyclerView.Adapter<StackAdapter.ViewHolder> 
             R.drawable.xm8,
             R.drawable.xm9,
             R.drawable.xm1,
-            R.drawable.xm2
+            R.drawable.xm2,
+            R.drawable.xm3,
+            R.drawable.xm4,
+            R.drawable.xm5,
+            R.drawable.xm6
     );
 
     public StackAdapter(List<String> datas) {

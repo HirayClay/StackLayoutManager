@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -93,13 +94,14 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     /**
      * the magic function :).all the work including computing ,recycling,and layout is done here
      *
-     * @param recycler
+     * @param recycler ...
      */
     private int fill(RecyclerView.Recycler recycler, int dy) {
+        int delta = direction.sign * dy;
         if (direction == LEFT)
-            return fillFromLeft(recycler, dy);
+            return fillFromLeft(recycler, delta);
         if (direction == RIGHT)
-            return fillFromRight(recycler, dy);
+            return fillFromRight(recycler, delta);
         else return dy;
     }
 
@@ -108,7 +110,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         if (mTotalOffset + dy < 0 || (mTotalOffset + dy + 0f) / mUnit > getItemCount() - 1)
             return 0;
         detachAndScrapAttachedViews(recycler);
-        mTotalOffset += direction.sign * dy;
+        mTotalOffset += dy;
         int count = getChildCount();
         //removeAndRecycle  views
         for (int i = 0; i < count; i++) {
@@ -227,7 +229,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
                 int o = mTotalOffset % mUnit;
                 int s = mUnit - o;
                 int scrollX;
-                if (velocityX > 0) {
+                if (velocityX * direction.sign > 0) {
                     scrollX = s;
                 } else
                     scrollX = -o;
@@ -279,7 +281,15 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private float scale(int position) {
-        float scale;
+        switch (direction) {
+            default:
+            case TOP:
+            case LEFT:
+            case BOTTOM:
+            case RIGHT:
+                return scaleDefault(position);
+        }
+/*        float scale;
         int curPos = this.mTotalOffset / mUnit;
         float n = (mTotalOffset + .0f) / mUnit;
         float x = n - curPos;
@@ -318,7 +328,34 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             } else if ((position < curPos - maxStackCount && direction == LEFT) || (position > curPos + maxStackCount && direction == RIGHT))
                 scale = 0f;
             else {
-                scale = 1f - scaleRatio * (/*n - curPos*/tail + curPos - position) / maxStackCount;
+                scale = 1f - scaleRatio * (*//*n - curPos*//*tail + curPos - position) / maxStackCount;
+            }
+        }
+        return scale;*/
+    }
+
+    private float scaleDefault(int position) {
+
+        float scale;
+        int curPos = this.mTotalOffset / mUnit;
+        float n = (mTotalOffset + .0f) / mUnit;
+        float x = n - curPos;
+        // position >= curPos+1;
+        if (position >= curPos) {
+            if (position == curPos)
+                scale = 1 - scaleRatio * (n - curPos) / maxStackCount;
+            else if (position == curPos + 1)
+            //let the item's (index:position+1) scale be 1 when the item slide 1/2 mUnit,
+            // this have better visual effect
+            {
+//                scale = 0.8f + (0.4f * x >= 0.2f ? 0.2f : 0.4f * x);
+                scale = secondaryScale + (x > 0.5f ? 1 - secondaryScale : 2 * (1 - secondaryScale) * x);
+            } else scale = secondaryScale;
+        } else {//position <= curPos
+            if (position < curPos - maxStackCount)
+                scale = 0f;
+            else {
+                scale = 1f - scaleRatio * (n - curPos + curPos - position) / maxStackCount;
             }
         }
         return scale;
@@ -349,14 +386,16 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     /**
      * @param position ..
      * @param curPos   ..
-     * @param tail     ..
+     * @param tail     .. change
      * @param n        ..
      * @param x        ..
      * @return the left position for given item
      */
     private int rtl(int position, int curPos, int tail, float n, float x) {
-        int rightMargin;
-
+        //虽然是做对称变换，但是必须考虑到scale给 对称变换带来的影响
+        float scale = scale(position);
+        return (int) (getWidth() - ltr(position, curPos, tail, n, x) - (mUnit - mSpace)*scale);
+       /* int rightMargin;
         if (position >= curPos) {
 
             if (position == curPos) {
@@ -376,7 +415,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             }
             rightMargin = rightMargin >= getWidth() ? getWidth() : rightMargin;
         }
-        return getWidth() - rightMargin - (mUnit - mSpace);
+        return getWidth() - rightMargin - (mUnit - mSpace);*/
     }
 
     private int ltr(int position, int curPos, int tail, float n, float x) {
@@ -392,12 +431,12 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             }
         } else {
             if (position == curPos + 1)
-                left = mSpace * maxStackCount + (position - curPos) * mUnit - tail;
+                left = mSpace * maxStackCount + mUnit - tail;
             else {
                 float closestBaseItemScale = scale(position - 1);
 
                 //调整因为scale导致的left误差
-                left = (int) (mSpace * maxStackCount + (position - curPos) * mUnit - tail - (mUnit - mSpace) * (1 - closestBaseItemScale));
+                left = (int) (mSpace * maxStackCount + (position - curPos) * mUnit - tail -  (mUnit - mSpace) * (1 - closestBaseItemScale));
             }
             left = left <= 0 ? 0 : left;
         }
@@ -408,7 +447,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     public void setAnimateValue(int animateValue) {
         this.animateValue = animateValue;
         int dy = this.animateValue - lastAnimateValue;
-        fill(recycler, dy);
+        fill(recycler, direction.sign * dy);
         lastAnimateValue = animateValue;
     }
 
@@ -437,11 +476,6 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public boolean canScrollHorizontally() {
         return direction == LEFT || direction == RIGHT;
-    }
-
-    @Override
-    public RecyclerView.LayoutParams generateLayoutParams(Context c, AttributeSet attrs) {
-        return super.generateLayoutParams(c, attrs);
     }
 
     @Override
