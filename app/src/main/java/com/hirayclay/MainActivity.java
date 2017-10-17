@@ -1,10 +1,8 @@
 package com.hirayclay;
 
-import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +21,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        setData();
+        resetDefault();
     }
 
     @OnClick(R.id.button)
-    public void setData() {
+    public void resetDefault() {
         List<String> datas = new ArrayList<>();
         datas.add("1");
         datas.add("2");
@@ -47,6 +45,34 @@ public class MainActivity extends AppCompatActivity {
         config.maxStackCount = 4;
         config.initialStackCount = 0;
         config.space = 40;
+        config.align = Align.LEFT;
+        recyclerview.setLayoutManager(new StackLayoutManager(config));
+        recyclerview.setAdapter(new StackAdapter(datas));
+
+    }
+
+    @OnClick(R.id.button1)
+    public void resetRight() {
+        List<String> datas = new ArrayList<>();
+        datas.add("1");
+        datas.add("2");
+        datas.add("3");
+        datas.add("4");
+        datas.add("5");
+        datas.add("6");
+        datas.add("7");
+        datas.add("8");
+        datas.add("9");
+        datas.add("10");
+        datas.add("11");
+
+        Config config = new Config();
+        config.secondaryScale = 0.8f;
+        config.scaleRatio = 0.4f;
+        config.maxStackCount = 4;
+        config.initialStackCount = 0;
+        config.space = 40;
+        config.align = Align.RIGHT;
         recyclerview.setLayoutManager(new StackLayoutManager(config));
         recyclerview.setAdapter(new StackAdapter(datas));
 

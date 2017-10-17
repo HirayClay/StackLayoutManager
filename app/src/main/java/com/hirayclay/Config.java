@@ -19,5 +19,6 @@ public class Config {
     public float secondaryScale;
     @FloatRange(from = 0f, to = 1f)
     public float scaleRatio;
+    Align align;
 
 }
