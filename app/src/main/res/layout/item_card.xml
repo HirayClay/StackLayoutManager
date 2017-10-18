@@ -19,6 +19,7 @@
         tools:targetApi="lollipop">
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/cover"
+            app:riv_corner_radius="8dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
