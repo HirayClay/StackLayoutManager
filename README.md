@@ -5,9 +5,7 @@ A long long time ago ,i was inspired by this project [android-pile-layout](https
 this is the relevant [blog](http://blog.csdn.net/u014296305/article/details/73496017) ,i hope it helps to understanding it</br>
 
 # Display
-this gif is kind of big~~~~ ,need  some time to load
 <img src="static/hrreverse.gif"/>
-<img src="static/stackmanager3.gif" width="0px" height="0px"/></br>
 
 ### Demo Apk
 [download](static/app_hr.apk)
