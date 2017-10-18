@@ -65,7 +65,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         detachAndScrapAttachedViews(recycler);
         //got the mUnit basing on the first child,of course we assume that  all the item has the same size
         View anchorView = recycler.getViewForPosition(0);
-        measureChildWithMargins(anchorView, 0, 0);
+        measureChild(anchorView, 0, 0);
         mUnit = anchorView.getMeasuredWidth() + mSpace;
         //because this method will be called twice
         initialOffset = initialStackCount * mUnit;
@@ -116,7 +116,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             float alpha = alpha(i);
 
             addView(view);
-            measureChildWithMargins(view, 0, 0);
+            measureChild(view, 0, 0);
             int left = (int) (left(i) - (1 - scale) * view.getMeasuredWidth() / 2);
             layoutDecoratedWithMargins(view, left, 0, left + view.getMeasuredWidth(), view.getMeasuredHeight());
             view.setAlpha(alpha);
@@ -131,7 +131,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state, int widthSpec, int heightSpec) {
         detachAndScrapAttachedViews(recycler);
         View anchorView = recycler.getViewForPosition(0);
-        measureChildWithMargins(anchorView,0,0);
+        measureChild(anchorView,0,0);
         int height  = anchorView.getMeasuredHeight();
         super.onMeasure(recycler,state,widthSpec, MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
     }
