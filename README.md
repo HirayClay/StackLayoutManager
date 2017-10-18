@@ -5,7 +5,7 @@ A long long time ago ,i was inspired by this project [android-pile-layout](https
 this is the relevant [blog](http://blog.csdn.net/u014296305/article/details/73496017) ,i hope it helps to understanding it</br>
 
 # Display
-<img src="static/hrreverse.gif"/>
+<img src="static/hrreverse.gif" width="561px" height="282px"/>
 
 ### Demo Apk
 [download](static/app_hr.apk)
