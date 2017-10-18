@@ -6,7 +6,8 @@
 # 博客
 这是对应的 [博客](http://blog.csdn.net/u014296305/article/details/73496017) ,希望能帮助理解实现思路，不过
 博客是实现那天写的，只写了从右至左滑动叠加这一种思路，不过最原始的想法已经在里面了，至于从左到右滑动叠加，可以参考
-这个[分支](https://github.com/HirayClay/StackLayoutManager/tree/orientation)的代码.
+这个[分支](https://github.com/HirayClay/StackLayoutManager/tree/orientation)的代码,其实也就是对前一种情况
+做一个对称变换，不过有些小细节注意一下.
 
 
 # 效果
