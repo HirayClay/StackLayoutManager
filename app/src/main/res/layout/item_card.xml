@@ -22,6 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
+            app:riv_corner_radius="8dp"
             android:src="@color/colorPrimary" />
         <TextView
             android:id="@+id/index"
