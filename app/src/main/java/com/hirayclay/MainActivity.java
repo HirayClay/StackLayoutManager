@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         config.secondaryScale = 0.8f;
         config.scaleRatio = 0.4f;
         config.maxStackCount = 4;
-        config.initialStackCount = 0;
+        config.initialStackCount = 2;
         config.space = 15;
         config.align = Align.LEFT;
         recyclerview.setLayoutManager(new StackLayoutManager(config));
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         config.secondaryScale = 0.8f;
         config.scaleRatio = 0.4f;
         config.maxStackCount = 4;
-        config.initialStackCount = 0;
+        config.initialStackCount = 2;
         config.space = getResources().getDimensionPixelOffset(R.dimen.item_space);
 
         config.align = Align.RIGHT;
