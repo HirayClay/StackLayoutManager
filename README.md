@@ -25,3 +25,5 @@ recyclerview.setAdapter(new StackAdapter(datas));
 
 ```
 
+# Other
+if you want to reverse the direction(stack item from left to right),check this [branch](https://github.com/HirayClay/StackLayoutManager/tree/orientation)
