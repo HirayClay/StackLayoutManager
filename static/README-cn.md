@@ -19,11 +19,11 @@
 ```java
 
 Config config = new Config();
-config.secondaryScale = 0.8f;
-config.scaleRatio = 0.5f;
-config.maxStackCount = 3;
-config.initialStackCount = 2;
-config.space = 70;
+config.secondaryScale = 0.8f; //没有叠加的item的缩放比例
+config.scaleRatio = 0.5f; 
+config.maxStackCount = 3; //最大叠加数量
+config.initialStackCount = 2;//初始状态下叠加的item数量
+config.space = 70;  //item之间的间隔
 recyclerview.setLayoutManager(new StackLayoutManager(config));
 recyclerview.setAdapter(new StackAdapter(datas));
 
