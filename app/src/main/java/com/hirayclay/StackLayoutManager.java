@@ -283,9 +283,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     private float scale(int position) {
         switch (direction) {
             default:
-            case TOP:
             case LEFT:
-            case BOTTOM:
             case RIGHT:
                 return scaleDefault(position);
         }
