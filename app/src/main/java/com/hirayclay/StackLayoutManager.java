@@ -175,7 +175,6 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
 
 
         int curPos = mTotalOffset / mUnit;
-        float n = (mTotalOffset + 0f) / mUnit;
         int leavingSpace = getWidth() - (left(curPos) + mUnit);
         int itemCountAfterBaseItem = leavingSpace / mUnit + 2;
         int e = curPos + itemCountAfterBaseItem;
