@@ -84,6 +84,16 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
 
     }
 
+    @Override
+    public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state, int widthSpec, int heightSpec) {
+        View anchorView = recycler.getViewForPosition(0);
+        measureChildWithMargins(anchorView, 0, 0);
+        int height = anchorView.getMeasuredHeight();
+        if (direction == LEFT || direction == RIGHT)
+            super.onMeasure(recycler, state, widthSpec, View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY));
+        else super.onMeasure(recycler, state, widthSpec, heightSpec);
+
+    }
 
     @Override
     public void onLayoutCompleted(RecyclerView.State state) {
@@ -124,13 +134,15 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
 
 
         int curPos = mTotalOffset / mUnit;
-//        float n = (mTotalOffset + 0f) / mUnit;
-//        float x = n % 1f;
+        int leavingSpace = left(curPos);
+        int itemCountAfterBaseItem = leavingSpace / mUnit + 2;
+        int e = curPos + itemCountAfterBaseItem;
+
         int start = curPos - maxStackCount <= 0 ? 0 : curPos - maxStackCount;
-        int end = curPos + maxStackCount > getItemCount() ? getItemCount() : curPos + maxStackCount;
+        int end = e >= getItemCount() ? getItemCount()-1 : e;
 
         //layout view
-        for (int i = start; i < end; i++) {
+        for (int i = start; i <= end; i++) {
             View view = recycler.getViewForPosition(i);
 
             float scale = scale(i);
