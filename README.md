@@ -26,7 +26,6 @@ recyclerview.setLayoutManager(new StackLayoutManager(config));
 recyclerview.setAdapter(new StackAdapter(datas));
 
 ```
-要注意的一点是，item根节点带margin会导致item可能会导致显示不全，最好是item和内容一样大小
 
 # Other
 if you want to reverse the direction(stack item from left to right),check this [branch](https://github.com/HirayClay/StackLayoutManager/tree/orientation)
