@@ -1,10 +1,8 @@
 package com.hirayclay;
 
-import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         config.scaleRatio = 0.4f;
         config.maxStackCount = 4;
         config.initialStackCount = 2;
-        config.space = 20;
+        config.space = getResources().getDimensionPixelOffset(R.dimen.item_space);
         recyclerview.setLayoutManager(new StackLayoutManager(config));
         recyclerview.setAdapter(new StackAdapter(datas));
 
