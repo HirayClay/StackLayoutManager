@@ -10,7 +10,7 @@
 
 
 # 效果
-<img src="static/art_new.gif" width="559px" height="256px"/>
+<img src="art_new.gif" width="559px" height="256px"/>
 
 ### 安装包
 [download](static/app.apk)
