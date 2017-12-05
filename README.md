@@ -11,7 +11,9 @@ this is the relevant [blog](http://blog.csdn.net/u014296305/article/details/7349
 <img src="static/stackmanager3.gif" width="0px" height="0px"/></br>
 
 
-if you want to reverse the direction(stack item from left to right),check this [branch](https://github.com/HirayClay/StackLayoutManager/tree/orientation)
+if you want to reverse the direction(stack item from left to right),like below:
+<img src="static/hrreverse.gif" width="559px" height="256px"/></br>
+check this [branch](https://github.com/HirayClay/StackLayoutManager/tree/orientation)
 
 ### Demo Apk
 [download](static/app.apk)
