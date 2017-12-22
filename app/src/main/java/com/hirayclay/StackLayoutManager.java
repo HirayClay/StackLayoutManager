@@ -129,15 +129,6 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         return dy;
     }
 
-    @Override
-    public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state, int widthSpec, int heightSpec) {
-        detachAndScrapAttachedViews(recycler);
-        View anchorView = recycler.getViewForPosition(0);
-        measureChild(anchorView,0,0);
-        int height  = anchorView.getMeasuredHeight();
-        super.onMeasure(recycler,state,widthSpec, MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
-    }
-
     private View.OnTouchListener onTouchListener = new View.OnTouchListener() {
 
         @SuppressLint("ClickableViewAccessibility")
