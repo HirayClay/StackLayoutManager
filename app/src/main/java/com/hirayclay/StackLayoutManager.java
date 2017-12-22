@@ -52,11 +52,13 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         this.initialStackCount = config.initialStackCount;
         this.secondaryScale = config.secondaryScale;
         this.scaleRatio = config.scaleRatio;
+        setAutoMeasureEnabled(true);
     }
 
 
     @SuppressWarnings("unused")
     public StackLayoutManager() {
+        setAutoMeasureEnabled(true);
     }
 
     @Override
