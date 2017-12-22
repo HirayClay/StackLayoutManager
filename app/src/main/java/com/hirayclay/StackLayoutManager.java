@@ -85,17 +85,6 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state, int widthSpec, int heightSpec) {
-        View anchorView = recycler.getViewForPosition(0);
-        measureChildWithMargins(anchorView, 0, 0);
-        int height = anchorView.getMeasuredHeight();
-        if (direction == LEFT || direction == RIGHT)
-            super.onMeasure(recycler, state, widthSpec, View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY));
-        else super.onMeasure(recycler, state, widthSpec, heightSpec);
-
-    }
-
-    @Override
     public void onLayoutCompleted(RecyclerView.State state) {
         super.onLayoutCompleted(state);
         if (!initial) {
