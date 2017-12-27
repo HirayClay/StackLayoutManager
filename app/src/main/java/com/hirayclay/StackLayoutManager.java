@@ -342,7 +342,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         int i = mTotalOffset / mUnit;
         if (mItemSelectedListener != null && mCurrItem != i) {
             mCurrItem = i;
-            mItemSelectedListener.onItemSelected(recycler.getViewForPosition(mCurrItem), mCurrItem);
+            mItemSelectedListener.onItemChange(recycler.getViewForPosition(mCurrItem), mCurrItem);
         }
     }
 

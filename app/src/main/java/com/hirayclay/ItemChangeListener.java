@@ -16,5 +16,5 @@ public interface ItemChangeListener {
      * @param itemView the new item in the base position
      * @param position the item's  position in list
      */
-    void onItemSelected(View itemView, int position);
+    void onItemChange(View itemView, int position);
 }

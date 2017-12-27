@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
     }
 
     @Override
-    public void onItemSelected(View itemView, int position) {
+    public void onItemChange(View itemView, int position) {
         Toast.makeText(getApplicationContext(),String.valueOf(position),Toast.LENGTH_SHORT).show();
     }
 }
