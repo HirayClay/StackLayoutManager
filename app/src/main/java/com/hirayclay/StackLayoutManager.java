@@ -9,7 +9,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
-import android.view.View.MeasureSpec;
 import android.view.ViewConfiguration;
 
 /**
@@ -45,6 +44,9 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     private int mMinVelocityX;
     private VelocityTracker mVelocityTracker = VelocityTracker.obtain();
     private int pointerId;
+    private ItemChangeListener mItemSelectedListener;
+    //the item position in the base position
+    private int mCurrItem;
 
     public StackLayoutManager(Config config) {
         this.maxStackCount = config.maxStackCount;
@@ -52,6 +54,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         this.initialStackCount = config.initialStackCount;
         this.secondaryScale = config.secondaryScale;
         this.scaleRatio = config.scaleRatio;
+        this.mItemSelectedListener = config.itemSelectedListener;
         setAutoMeasureEnabled(true);
     }
 
@@ -71,6 +74,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         mUnit = anchorView.getMeasuredWidth() + mSpace;
         //because this method will be called twice
         initialOffset = initialStackCount * mUnit;
+        mCurrItem = initialStackCount;
         mMinVelocityX = ViewConfiguration.get(anchorView.getContext()).getScaledMinimumFlingVelocity();
         fill(recycler, 0);
 
@@ -202,6 +206,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             @Override
             public void onAnimationEnd(Animator animation) {
                 lastAnimateValue = 0;
+                onItemSelected();
             }
 
             @Override
@@ -274,7 +279,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 
             if (position == curPos + 2) {
                 float prevItemScale = scale(position - 1);
-                left = (int) (mSpace * maxStackCount + position * mUnit - mTotalOffset -(1-prevItemScale)*(mUnit- mSpace));
+                left = (int) (mSpace * maxStackCount + position * mUnit - mTotalOffset - (1 - prevItemScale) * (mUnit - mSpace));
 
             } else {
                 left = mSpace * maxStackCount + position * mUnit - mTotalOffset;
@@ -305,7 +310,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
      * view is out of the bound after the dy is applied
      *
      * @param view ..
-     * @param dy ..
+     * @param dy   ..
      * @return true if need recycle
      */
     private boolean shouldRecycle(View view/*int position*/, int dy) {
@@ -327,5 +332,21 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
         return new RecyclerView.LayoutParams(RecyclerView.LayoutParams.WRAP_CONTENT, RecyclerView.LayoutParams.WRAP_CONTENT);
+    }
+
+    public void setItemSelectedListener(ItemChangeListener itemSelectedListener) {
+        this.mItemSelectedListener = mItemSelectedListener;
+    }
+
+    private void onItemSelected() {
+        int i = mTotalOffset / mUnit;
+        if (mItemSelectedListener != null && mCurrItem != i) {
+            mCurrItem = i;
+            mItemSelectedListener.onItemSelected(recycler.getViewForPosition(mCurrItem), mCurrItem);
+        }
+    }
+
+    public int getmCurrItem() {
+        return mCurrItem;
     }
 }
