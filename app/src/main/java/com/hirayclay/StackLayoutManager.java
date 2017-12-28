@@ -3,7 +3,6 @@ package com.hirayclay;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewConfiguration;
 
 /**
  * Created by CJJ on 2017/5/17.
@@ -47,7 +46,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     }
 
 
-     StackLayoutManager() {
+    StackLayoutManager() {
         setAutoMeasureEnabled(true);
     }
 
@@ -115,7 +114,6 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             view.setScaleY(scale);
             view.setScaleX(scale);
         }
-        Log.i(TAG, "fill Done here!");
         return dy;
     }
 
@@ -138,7 +136,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             alpha = 1 - (n - position) / maxStackCount;
         }
         //for precise checking,oh may be kind of dummy
-        return alpha <= 0.001f ? 0 : alpha;
+        return 1;
     }
 
     private float scale(int position) {
@@ -235,8 +233,54 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     }
 
     public int[] getSnapDistance(View targetView) {
+        boolean half = (mTotalOffset + .0f) % mUnit > mUnit / 2;
         int snapPos = maxStackCount * mSpace;
         int left = targetView.getLeft();
+        int[] r = new int[2];
+        r[1] = 0;
+        int temp = left - snapPos;
+        // if snap view is on the left of base position,we need to calculate the percent
+        if (temp < 0) {
+            int absDistance = Math.abs(temp);
+            float percent = (absDistance + .0f) / mSpace;
+            if (half) {
+                temp = (int) ((1 - percent) * mUnit);
+            } else
+                temp = -(int) (percent * mUnit);
+        } else {
+            if (!half)
+                temp = mUnit - temp;
+        }
+        r[0] = temp;
+        if (BuildConfig.DEBUG)
+            Log.i(TAG, "getSnapDistance: " + r[0]);
+        return r;
+    }
+
+    public View findSnapView() {
+        if (mTotalOffset == 0)
+            return getChildAt(0);
+        //根据滑动距离判断目前有多少个子View
+        int currPos = mTotalOffset / mUnit;
+        boolean half = (mTotalOffset + .0f) % mUnit > mUnit / 2;
+        int destPos;
+        if (currPos >= maxStackCount) {
+            if (half)
+                destPos = 5;
+            else destPos = 4;
+        } else {
+            if (half)
+                destPos = currPos + 1;
+            else destPos = currPos;
+            if (BuildConfig.DEBUG)
+                Log.i(TAG, "findSnapView: " + destPos);
+        }
+        return getChildAt(destPos);
+    }
+
+    public int findTargetSnapPosition(int velocityX, int velocityY) {
+        if (mTotalOffset == 0)
+            return RecyclerView.NO_POSITION;
         //        int o = ;
 //        int s = mUnit - o;
 //        int scrollX;
@@ -246,36 +290,8 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 //            scrollX = -o;
 //        int dur = computeSettleDuration(Math.abs(scrollX), Math.abs(velocityX))/* (int) (3000f / Math.abs(velocityX) * duration)*/;
 //        brewAndStartAnimator(dur, scrollX);
-        int[] r = new int[2];
-        r[1] = 0;
-        int temp = left - snapPos;
-        // if snap view is on the left of base position,we need to calculate the percent
-        if (temp < 0) {
-            int absDistance = Math.abs(temp);
-            float percent = (absDistance + .0f) / mSpace;
-            temp = -(int) (percent * mUnit);
-        }
-        r[0] = temp;
-        Log.i(TAG, "getSnapDistance: " + r[0]);
-        return r;
-    }
-
-    public View findSnapView() {
-        if (mTotalOffset == 0)
-            return getChildAt(0);
-        int currPos = mTotalOffset / mUnit;
-        boolean half = (mTotalOffset + .0f) % mUnit > mUnit / 2;
-        int destPos;
-        if (currPos >= maxStackCount) {
-            if (half)
-                destPos = maxStackCount;
-            else destPos = maxStackCount - 1;
-        } else {
-            if (half)
-                destPos = currPos + 1;
-            else destPos = currPos;
-        }
-        Log.i(TAG, "findSnapView: "+destPos);
-        return getChildAt(destPos);
+        if (BuildConfig.DEBUG)
+            Log.i(TAG, "findTargetSnapPosition: ");
+        return mTotalOffset / mUnit;
     }
 }
