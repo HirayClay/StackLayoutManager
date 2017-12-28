@@ -68,6 +68,12 @@ public class StackAdapter extends RecyclerView.Adapter<StackAdapter.ViewHolder> 
             super(itemView);
             cover = (ImageView) itemView.findViewById(R.id.cover);
             index = (TextView) itemView.findViewById(R.id.index);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toasty.toast("click item" + String.valueOf(getAdapterPosition()));
+                }
+            });
         }
     }
 }
