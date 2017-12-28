@@ -10,7 +10,6 @@
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clickable="true"
         android:foreground="?android:attr/selectableItemBackground"
         android:stateListAnimator="@animator/item_animator"
         app:cardPreventCornerOverlap="false"
