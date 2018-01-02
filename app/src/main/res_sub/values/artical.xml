@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Artical1">
+        BSD licenses are a family of permissive free software licenses, imposing minimal restrictions on the use and redistribution of covered software. This is in contrast to copyleft licenses, which have reciprocity share-alike requirements. The original BSD license was used for its namesake, the Berkeley Software Distribution (BSD), a Unix-like operating system. The original version has since been revised and its descendants are more properly termed modified BSD licenses. BSD is both a license and a class of license (generally referred to as BSD-like). The modified BSD license (in wide use today) is very similar to the license originally used for the BSD version of Unix. The BSD license is a simple license that merely requires that all code licensed under the BSD license be licensed under the BSD license if redistributed in source code format. BSD (unlike some other licenses) does not require that source code be distributed at all.
+    </string>
+</resources>

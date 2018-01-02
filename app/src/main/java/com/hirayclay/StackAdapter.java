@@ -40,6 +40,7 @@ public class StackAdapter extends RecyclerView.Adapter<StackAdapter.ViewHolder> 
             R.drawable.xm5,
             R.drawable.xm6
     );
+    private boolean vertical;
 
     public StackAdapter(List<String> datas) {
         this.datas = datas;
@@ -51,7 +52,14 @@ public class StackAdapter extends RecyclerView.Adapter<StackAdapter.ViewHolder> 
             context = parent.getContext();
             inflater = LayoutInflater.from(parent.getContext());
         }
+        if (vertical)
+            return new ViewHolder(inflater.inflate(R.layout.vertical_item_card, parent, false));
         return new ViewHolder(inflater.inflate(R.layout.item_card, parent, false));
+    }
+
+    public StackAdapter vertical() {
+        this.vertical = true;
+        return this;
     }
 
     @Override

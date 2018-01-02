@@ -11,6 +11,12 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    sourceSets {
+        main {
+            res.srcDirs('src/main/res', 'src/main/res_sub')
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false

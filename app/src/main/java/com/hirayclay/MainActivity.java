@@ -1,8 +1,10 @@
 package com.hirayclay;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Button;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,8 @@ public class MainActivity extends AppCompatActivity {
     //horizontal reverse recyclerview
     @Bind(R.id.recyclerview1)
     RecyclerView hrRecyclerView;
+    @Bind(R.id.button)
+    Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
         resetDefault();
         resetRight();
     }
+
+
 
     @OnClick(R.id.button)
     public void resetDefault() {
@@ -65,5 +71,10 @@ public class MainActivity extends AppCompatActivity {
         config.align = Align.RIGHT;
         hrRecyclerView.setLayoutManager(new StackLayoutManager(config));
         hrRecyclerView.setAdapter(new StackAdapter(datas));
+    }
+
+    @OnClick(R.id.button2)
+    public void viewVertical() {
+        startActivity(new Intent(this,VerticalActivity.class));
     }
 }
