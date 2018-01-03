@@ -210,6 +210,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     private int fillFromLeft(RecyclerView.Recycler recycler, int dy) {
         if (mTotalOffset + dy < 0 || (mTotalOffset + dy + 0f) / mUnit > getItemCount() - 1)
             return 0;
+        detachAndScrapAttachedViews(recycler);
         mTotalOffset += direction.layoutDirection * dy;
         int count = getChildCount();
         //removeAndRecycle  views
@@ -240,7 +241,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
             int left = (int) (left(i) - (1 - scale) * view.getMeasuredWidth() / 2);
             int top = 0;
             int right = left + view.getMeasuredWidth();
-            int bottom = view.getMeasuredHeight();
+            int bottom = top + view.getMeasuredHeight();
             layoutDecoratedWithMargins(view, left, top, right, bottom);
             view.setAlpha(alpha);
             view.setScaleY(scale);
