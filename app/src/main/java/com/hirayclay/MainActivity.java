@@ -1,10 +1,10 @@
 package com.hirayclay;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.widget.Toast;
+import android.widget.Button;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,33 +13,53 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements ItemChangeListener {
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     @Bind(R.id.recyclerview)
     RecyclerView recyclerview;
+
+    //horizontal reverse recyclerview
+    @Bind(R.id.recyclerview1)
+    RecyclerView hrRecyclerView;
+    @Bind(R.id.button)
+    Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        setData();
+        resetDefault();
+        resetRight();
     }
 
+
+
     @OnClick(R.id.button)
-    public void setData() {
+    public void resetDefault() {
         List<String> datas = new ArrayList<>();
-        datas.add("Item1");
-        datas.add("Item2");
-        datas.add("Item3");
-        datas.add("Item4");
-        datas.add("Item5");
-        datas.add("Item6");
-        datas.add("Item7");
-        datas.add("Item8");
-        datas.add("Item9");
-        datas.add("Item10");
-        datas.add("Item11");
+        for (int i = 0; i < 15; i++) {
+            datas.add(String.valueOf(i));
+        }
+
+        Config config = new Config();
+        config.secondaryScale = 0.8f;
+        config.scaleRatio = 0.4f;
+        config.maxStackCount = 4;
+        config.initialStackCount = 2;
+        config.space = 15;
+        config.align = Align.LEFT;
+        recyclerview.setLayoutManager(new StackLayoutManager(config));
+        recyclerview.setAdapter(new StackAdapter(datas));
+
+    }
+
+    @OnClick(R.id.button1)
+    public void resetRight() {
+        List<String> datas = new ArrayList<>();
+        for (int i = 0; i < 15; i++) {
+            datas.add(String.valueOf(i));
+        }
 
         Config config = new Config();
         config.secondaryScale = 0.8f;
@@ -47,14 +67,14 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
         config.maxStackCount = 4;
         config.initialStackCount = 2;
         config.space = getResources().getDimensionPixelOffset(R.dimen.item_space);
-        config.itemSelectedListener = this;
-        recyclerview.setLayoutManager(new StackLayoutManager(config));
-        recyclerview.setAdapter(new StackAdapter(datas));
 
+        config.align = Align.RIGHT;
+        hrRecyclerView.setLayoutManager(new StackLayoutManager(config));
+        hrRecyclerView.setAdapter(new StackAdapter(datas));
     }
 
-    @Override
-    public void onItemChange(View itemView, int position) {
-        Toast.makeText(getApplicationContext(),String.valueOf(position),Toast.LENGTH_SHORT).show();
+    @OnClick(R.id.button2)
+    public void viewVertical() {
+        startActivity(new Intent(this,VerticalActivity.class));
     }
 }

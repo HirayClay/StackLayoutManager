@@ -8,4 +8,11 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+
+    <declare-styleable name="StackRecyclerView">
+        <attr name="max_stack" format="integer"/>
+        <attr name="initial_stack" format="integer"/>
+        <attr name="stack_space" format="dimension"/>
+        <attr name="secondary_scale" format="float"/>
+    </declare-styleable>
 </resources>

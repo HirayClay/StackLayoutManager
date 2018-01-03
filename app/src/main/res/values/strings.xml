@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">StackLayoutManager</string>
-    <string name="StackLayoutManager">com.hirayclay.StackLayoutManager</string>
+    <string name="stacklayoutmanager">com.hirayclay.StackLayoutManager</string>
+    <string name="reset">reset</string>
 </resources>

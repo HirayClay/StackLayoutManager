@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -33,8 +34,13 @@ public class StackAdapter extends RecyclerView.Adapter<StackAdapter.ViewHolder> 
             R.drawable.xm8,
             R.drawable.xm9,
             R.drawable.xm1,
-            R.drawable.xm2
+            R.drawable.xm2,
+            R.drawable.xm3,
+            R.drawable.xm4,
+            R.drawable.xm5,
+            R.drawable.xm6
     );
+    private boolean vertical;
 
     public StackAdapter(List<String> datas) {
         this.datas = datas;
@@ -46,13 +52,20 @@ public class StackAdapter extends RecyclerView.Adapter<StackAdapter.ViewHolder> 
             context = parent.getContext();
             inflater = LayoutInflater.from(parent.getContext());
         }
+        if (vertical)
+            return new ViewHolder(inflater.inflate(R.layout.vertical_item_card, parent, false));
         return new ViewHolder(inflater.inflate(R.layout.item_card, parent, false));
+    }
+
+    public StackAdapter vertical() {
+        this.vertical = true;
+        return this;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Glide.with(context).load(imageUrls.get(position)).into(holder.cover);
-        holder.index.setText(String.valueOf(position));
+        holder.index.setText(datas.get(holder.getAdapterPosition()));
     }
 
     @Override
@@ -71,7 +84,8 @@ public class StackAdapter extends RecyclerView.Adapter<StackAdapter.ViewHolder> 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toasty.toast("click item" + String.valueOf(getAdapterPosition()));
+                    Toast.makeText(context.getApplicationContext(), String.valueOf(getAdapterPosition()), Toast.LENGTH_SHORT)
+                            .show();
                 }
             });
         }
