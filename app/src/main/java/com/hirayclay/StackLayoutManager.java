@@ -11,6 +11,9 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.hirayclay.Align.BOTTOM;
 import static com.hirayclay.Align.LEFT;
 import static com.hirayclay.Align.RIGHT;
@@ -216,8 +219,13 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         //removeAndRecycle  views
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
-            if (recycleHorizontally(child, dy))
+            if (recycleHorizontally(child, dy)) {
                 removeAndRecycleView(child, recycler);
+            } else {
+                //if a child can be recycled ,the after view will never be,so we can save time from
+                // this loop
+                break;
+            }
         }
 
 
@@ -231,7 +239,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
 
         //layout view
         for (int i = start; i <= end; i++) {
-            View view = recycler.getViewForPosition(i);
+            View view = getView(recycler, i);
 
             float scale = scale(i);
             float alpha = alpha(i);
@@ -249,6 +257,21 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         }
 
         return dy;
+    }
+
+    private View getView(RecyclerView.Recycler recycler, int i) {
+        List<RecyclerView.ViewHolder> scrapList = recycler.getScrapList();
+        if (scrapList != null && !scrapList.isEmpty()) {
+            int size = scrapList.size();
+            for (int j = 0; j < size; j++) {
+                RecyclerView.ViewHolder vh = scrapList.get(j);
+                View itemView = vh.itemView;
+                RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) itemView.getLayoutParams();
+                if (layoutParams.getViewLayoutPosition() == i)
+                    return itemView;
+            }
+        }
+        return recycler.getViewForPosition(i);
     }
 
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
@@ -492,6 +515,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler, RecyclerView.State state) {
+
         return fill(recycler, dx);
     }
 
@@ -523,5 +547,90 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         float alpha(int totalOffset, int position);
 
         float left(int totalOffset, int position);
+    }
+
+    /**
+     * save some layout info,such as scroll direction,
+     * optimizing bullshit code
+     */
+    private class LayoutState {
+        /**
+         * scroll from end to start(e.g. from bottom to top when vertical or right to left when horizontal)
+         */
+        public static final int SCROLL_END = 1;
+        /**
+         * scroll from start to end
+         */
+        public static final int SCROLL_START = -1;
+
+        /**
+         * decide whether recycle or not
+         */
+        public boolean mRecycle = true;
+        /**
+         *
+         */
+        private List<RecyclerView.ViewHolder> mScrapList = new ArrayList<>();
+        /**
+         * {@link #SCROLL_END} or {@link #SCROLL_START}
+         */
+        private int mScrollDirection;
+        /**
+         * index we start in fetching view
+         */
+        private int mCurrentPosition = RecyclerView.NO_POSITION;
+        /**
+         * scroll offset this time
+         */
+        private int mOffset;
+
+        public void updateLayoutState(int scrollDirection, int delta) {
+            mScrollDirection = scrollDirection;
+            mOffset = delta;
+            if (scrollDirection == SCROLL_END) {
+                View child = getClosetChildToEnd();
+                mCurrentPosition = getPosition(child) + mScrollDirection;
+            } else {
+                View child = getClosetChildToStart();
+                mCurrentPosition = getPosition(child) + mScrollDirection;
+            }
+        }
+
+        private View next(RecyclerView.Recycler recycler) {
+            if (mScrapList != null)
+                return nextFromScrapList();
+            View view = recycler.getViewForPosition(mCurrentPosition);
+            mCurrentPosition += mScrollDirection;
+            return view;
+        }
+
+        private View nextFromScrapList() {
+            final int size = mScrapList.size();
+            for (int i = 0; i < size; i++) {
+                final View view = mScrapList.get(i).itemView;
+                final RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) view.getLayoutParams();
+                if (lp.isItemRemoved()) {
+                    continue;
+                }
+                if (mCurrentPosition == lp.getViewLayoutPosition()) {
+//                        assignPositionFromScrapList(view);
+                    return view;
+                }
+            }
+            return null;
+        }
+
+        View getClosetChildToEnd() {
+            return getChildAt(getChildCount() - 1);
+        }
+
+        View getClosetChildToStart() {
+            return getChildAt(0);
+        }
+    }
+
+
+    private void recycleViewByLayoutState(RecyclerView.Recycler recycler, LayoutState layoutState) {
+//        if ()
     }
 }
