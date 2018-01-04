@@ -11,10 +11,8 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static com.hirayclay.Align.BOTTOM;
 import static com.hirayclay.Align.LEFT;
 import static com.hirayclay.Align.RIGHT;
 import static com.hirayclay.Align.TOP;
@@ -531,7 +529,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public boolean canScrollVertically() {
-        return direction == TOP || direction == BOTTOM;
+        return direction == TOP;
     }
 
     @Override
@@ -568,9 +566,9 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
          */
         public boolean mRecycle = true;
         /**
-         *
+         * views that we  use first
          */
-        private List<RecyclerView.ViewHolder> mScrapList = new ArrayList<>();
+        private List<RecyclerView.ViewHolder> mScrapList = null;
         /**
          * {@link #SCROLL_END} or {@link #SCROLL_START}
          */
@@ -583,6 +581,8 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
          * scroll offset this time
          */
         private int mOffset;
+
+        private int end = RecyclerView.NO_POSITION;
 
         public void updateLayoutState(int scrollDirection, int delta) {
             mScrollDirection = scrollDirection;
@@ -597,28 +597,18 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         }
 
         private View next(RecyclerView.Recycler recycler) {
-            if (mScrapList != null)
-                return nextFromScrapList();
             View view = recycler.getViewForPosition(mCurrentPosition);
             mCurrentPosition += mScrollDirection;
             return view;
         }
 
-        private View nextFromScrapList() {
-            final int size = mScrapList.size();
-            for (int i = 0; i < size; i++) {
-                final View view = mScrapList.get(i).itemView;
-                final RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) view.getLayoutParams();
-                if (lp.isItemRemoved()) {
-                    continue;
-                }
-                if (mCurrentPosition == lp.getViewLayoutPosition()) {
-//                        assignPositionFromScrapList(view);
-                    return view;
-                }
-            }
-            return null;
+        /**
+         * @return true if there is no more element
+         */
+        public boolean hasMore() {
+            return !(mCurrentPosition > end);
         }
+
 
         View getClosetChildToEnd() {
             return getChildAt(getChildCount() - 1);
