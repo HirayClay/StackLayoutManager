@@ -9,12 +9,12 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class VerticalActivity extends AppCompatActivity {
 
-    @Bind(R.id.recyclerview_vertical)
+    @BindView(R.id.recyclerview_vertical)
     RecyclerView verticalRecyclerview;
 
     @Override
