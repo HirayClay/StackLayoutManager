@@ -6,4 +6,10 @@
         android:id="@+id/reset"
         app:showAsAction="always"
         android:title="@string/reset" />
+
+    <item
+        android:id="@+id/RemoveThird"
+        app:showAsAction="always"
+        android:title="@string/removethird"
+        />
 </menu>

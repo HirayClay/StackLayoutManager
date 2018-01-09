@@ -42,6 +42,12 @@ public class StackAdapter extends RecyclerView.Adapter<StackAdapter.ViewHolder> 
     );
     private boolean vertical;
 
+    public StackAdapter imgs(List<Integer> imageUrls) {
+        this.imageUrls = imageUrls;
+        notifyDataSetChanged();
+        return this;
+    }
+
     public StackAdapter(List<String> datas) {
         this.datas = datas;
     }
@@ -55,6 +61,11 @@ public class StackAdapter extends RecyclerView.Adapter<StackAdapter.ViewHolder> 
         if (vertical)
             return new ViewHolder(inflater.inflate(R.layout.vertical_item_card, parent, false));
         return new ViewHolder(inflater.inflate(R.layout.item_card, parent, false));
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
     public StackAdapter vertical() {

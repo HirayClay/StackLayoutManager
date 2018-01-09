@@ -2,11 +2,13 @@ package com.hirayclay;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -16,6 +18,28 @@ public class VerticalActivity extends AppCompatActivity {
 
     @BindView(R.id.recyclerview_vertical)
     RecyclerView verticalRecyclerview;
+    List<Integer> imgIds = new ArrayList<>();
+
+    private List<Integer> originIds = Arrays.asList(
+            R.drawable.xm2,
+            R.drawable.xm3,
+            R.drawable.xm4,
+            R.drawable.xm5,
+            R.drawable.xm6,
+            R.drawable.xm7,
+            R.drawable.xm1,
+            R.drawable.xm8,
+            R.drawable.xm9,
+            R.drawable.xm1,
+            R.drawable.xm2,
+            R.drawable.xm3,
+            R.drawable.xm4,
+            R.drawable.xm5,
+            R.drawable.xm6
+    );
+    private StackAdapter adapter;
+    private List<String> datas;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,10 +50,12 @@ public class VerticalActivity extends AppCompatActivity {
     }
 
     private void vr() {
-        List<String> datas = new ArrayList<>();
+        datas = new ArrayList<>();
         for (int i = 0; i < 15; i++) {
             datas.add(String.valueOf(i));
         }
+
+        prepareImgIds();
 
         Config config = new Config();
         config.secondaryScale = 0.95f;
@@ -39,7 +65,12 @@ public class VerticalActivity extends AppCompatActivity {
         config.space = 45;
         config.align = Align.TOP;
         verticalRecyclerview.setLayoutManager(new StackLayoutManager(config));
-        verticalRecyclerview.setAdapter(new StackAdapter(datas).vertical());
+        adapter = new StackAdapter(datas).vertical().imgs(imgIds);
+        verticalRecyclerview.setAdapter(adapter);
+    }
+
+    private void prepareImgIds() {
+        imgIds.addAll(originIds);
     }
 
     @Override
@@ -47,6 +78,11 @@ public class VerticalActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.reset:
                 vr();
+                break;
+            case R.id.RemoveThird:
+                imgIds.remove(3);
+                datas.remove(3);
+                adapter.notifyItemRemoved(3);
                 break;
         }
         return super.onOptionsItemSelected(item);
