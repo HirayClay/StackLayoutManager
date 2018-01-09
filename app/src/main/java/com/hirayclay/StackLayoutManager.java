@@ -52,6 +52,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     private int initialStackCount = 4;
     private float secondaryScale = 0.8f;
     private float scaleRatio = 0.4f;
+    private float parallex =1f;
     private int initialOffset;
     private boolean initial;
     private int mMinVelocityX;
@@ -67,6 +68,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         this.secondaryScale = config.secondaryScale;
         this.scaleRatio = config.scaleRatio;
         this.direction = config.align;
+        this.parallex = config.parallex;
     }
 
 
@@ -492,12 +494,12 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler, RecyclerView.State state) {
-        return fill(recycler, dx);
+        return fill(recycler, ext(dx));
     }
 
     @Override
     public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
-        return fill(recycler, dy);
+        return fill(recycler, ext(dy));
     }
 
     @Override
@@ -508,6 +510,10 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public boolean canScrollVertically() {
         return direction == TOP || direction == BOTTOM;
+    }
+
+    private int ext(int realDistance) {
+        return (int) (parallex*realDistance);
     }
 
     @Override
