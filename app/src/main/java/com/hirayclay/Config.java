@@ -24,7 +24,7 @@ public class Config {
      * so we multiply a factor
      */
     @FloatRange(from = 1f)
-    public float parallex;
+    public float parallex = 1f;
     Align align;
 
 }

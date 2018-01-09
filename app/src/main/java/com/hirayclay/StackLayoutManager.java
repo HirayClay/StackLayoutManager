@@ -111,7 +111,8 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
      * @param recycler ...
      */
     private int fill(RecyclerView.Recycler recycler, int dy) {
-        int delta = direction.layoutDirection * dy;
+        // multiply the parallex factor
+        int delta = (int) (direction.layoutDirection * dy*parallex);
         if (direction == LEFT)
             return fillFromLeft(recycler, delta);
         if (direction == RIGHT)
@@ -494,12 +495,12 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler, RecyclerView.State state) {
-        return fill(recycler, ext(dx));
+        return fill(recycler, dx);
     }
 
     @Override
     public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
-        return fill(recycler, ext(dy));
+        return fill(recycler, dy);
     }
 
     @Override
