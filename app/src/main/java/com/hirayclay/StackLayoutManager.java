@@ -29,8 +29,8 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     //the offset unit,deciding current position(the sum of one child's width and one space)
     private int mUnit;
     //the counting variable ,record the total offset
-    int mTotalOffset;
-    ObjectAnimator animator;
+    private int mTotalOffset;
+    private ObjectAnimator animator;
     private int animateValue;
     private int duration = 300;
     private RecyclerView.Recycler recycler;
