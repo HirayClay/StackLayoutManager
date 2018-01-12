@@ -23,7 +23,7 @@ public class Config {
      * the real scroll distance might can fit requirement,
      * so we multiply a factor
      */
-    @FloatRange(from = 1f)
+    @FloatRange(from = 1f,to = 2f)
     public float parallex = 1f;
     Align align;
 
