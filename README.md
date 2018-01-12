@@ -12,7 +12,7 @@ this is the relevant [blog](http://blog.csdn.net/u014296305/article/details/7349
 <img src="static/VerticallSLM.gif" width="388px" height="632px"/>
 
 ### Demo Apk
-[download](static/app_hr.apk)
+[download](static/app-vertical.apk)
 
 # Usage
 ```java
