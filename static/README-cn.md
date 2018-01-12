@@ -14,7 +14,7 @@
 <img src="art_new.gif" width="559px" height="256px"/>
 
 ### 安装包
-[download](static/app.apk)
+[download](https://github.com/HirayClay/StackLayoutManager/blob/orientation/static/app-vertical.apk)
 
 ## 使用示例
 ```java
