@@ -47,6 +47,54 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     private ItemChangeListener mItemSelectedListener;
     //the item position in the base position
     private int mCurrItem;
+    private View.OnTouchListener mFingerUpDealer = new FingerUpDealer();
+    private RecyclerView.OnFlingListener mFlingDealer = new FlingDealer();
+
+    class FingerUpDealer implements View.OnTouchListener {
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            mVelocityTracker.addMovement(event);
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                if (animator != null
+                        && animator.isRunning())
+                    animator.cancel();
+                pointerId = event.getPointerId(0);
+            }
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                mVelocityTracker.computeCurrentVelocity(1000, 14000);
+                float xVelocity = VelocityTrackerCompat.getXVelocity(mVelocityTracker, pointerId);
+                int o = mTotalOffset % mUnit;
+                int scrollX;
+                if (Math.abs(xVelocity) < mMinVelocityX)
+                    if (o != 0) {
+                        if (o >= mUnit / 2)
+                            scrollX = mUnit - o;
+                        else scrollX = -o;
+                        int dur = (int) (Math.abs((scrollX + 0f) / mUnit) * duration);
+                        brewAndStartAnimator(dur, scrollX);
+                    }
+            }
+            return false;
+        }
+    }
+
+    class FlingDealer extends RecyclerView.OnFlingListener {
+
+        @Override
+        public boolean onFling(int velocityX, int velocityY) {
+            int o = mTotalOffset % mUnit;
+            int s = mUnit - o;
+            int scrollX;
+            if (velocityX > 0) {
+                scrollX = s;
+            } else
+                scrollX = -o;
+            int dur = computeSettleDuration(Math.abs(scrollX), Math.abs(velocityX))/* (int) (3000f / Math.abs(velocityX) * duration)*/;
+            brewAndStartAnimator(dur, scrollX);
+            return true;
+        }
+    }
 
     public StackLayoutManager(Config config) {
         this.maxStackCount = config.maxStackCount;
@@ -133,62 +181,13 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         return dy;
     }
 
-    private View.OnTouchListener onTouchListener = new View.OnTouchListener() {
-
-        @SuppressLint("ClickableViewAccessibility")
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            mVelocityTracker.addMovement(event);
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                if (animator != null
-                        && animator.isRunning())
-                    animator.cancel();
-                pointerId = event.getPointerId(0);
-
-            }
-
-
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                mVelocityTracker.computeCurrentVelocity(1000, 14000);
-                float xVelocity = VelocityTrackerCompat.getXVelocity(mVelocityTracker, pointerId);
-
-                int o = mTotalOffset % mUnit;
-                int scrollX;
-                if (Math.abs(xVelocity) < mMinVelocityX)
-                    if (o != 0) {
-                        if (o >= mUnit / 2)
-                            scrollX = mUnit - o;
-                        else scrollX = -o;
-                        int dur = (int) (Math.abs((scrollX + 0f) / mUnit) * duration);
-                        brewAndStartAnimator(dur, scrollX);
-                    }
-            }
-            return false;
-        }
-    };
-
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onAttachedToWindow(RecyclerView view) {
         super.onAttachedToWindow(view);
         //check when raise finger and settle to the appropriate item
-        //why keeping warning me of not override performClick???
-        view.setOnTouchListener(onTouchListener);
-
-        view.setOnFlingListener(new RecyclerView.OnFlingListener() {
-            @Override
-            public boolean onFling(int velocityX, int velocityY) {
-                int o = mTotalOffset % mUnit;
-                int s = mUnit - o;
-                int scrollX;
-                if (velocityX > 0) {
-                    scrollX = s;
-                } else
-                    scrollX = -o;
-                int dur = computeSettleDuration(Math.abs(scrollX), Math.abs(velocityX))/* (int) (3000f / Math.abs(velocityX) * duration)*/;
-                brewAndStartAnimator(dur, scrollX);
-                return true;
-            }
-        });
+        view.setOnTouchListener(mFingerUpDealer);
+        view.setOnFlingListener(mFlingDealer);
     }
 
     private int computeSettleDuration(int distance, float xvel) {
@@ -334,6 +333,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         return new RecyclerView.LayoutParams(RecyclerView.LayoutParams.WRAP_CONTENT, RecyclerView.LayoutParams.WRAP_CONTENT);
     }
 
+    //todo check that item selected in a appropriate time
     public void setItemSelectedListener(ItemChangeListener itemSelectedListener) {
         this.mItemSelectedListener = mItemSelectedListener;
     }
