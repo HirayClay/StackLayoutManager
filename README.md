@@ -21,7 +21,7 @@ check this [branch](https://github.com/HirayClay/StackLayoutManager/tree/orienta
 ### Demo Apk
 [download](static/app.apk)
 
-# Usage（only a demo project ,be careful use in your production env）
+# Usage（only a demo project ,take care in your production env）
 ```java
 
 Config config = new Config();
