@@ -1,4 +1,5 @@
 [中文](static/README-cn.md)
+（因为目前代码组织得非常烂，仅仅是个玩具，最好不要用进项目，当初只是模仿着写，对RV的一整套东西并没有理解很透彻,比如动画等等一些也没支持）
 
 # Why
 A long long time ago ,i was inspired by this project [android-pile-layout](https://github.com/xmuSistone/android-pile-layout) ,the author cannot find the appropriate math model with [LayoutManager](https://github.com/HirayClay/StackLayoutManager/blob/master/app/src/main/java/com/hirayclay/StackLayoutManager.java) .Now i have some spare time and try to do the UI with layoutManager,barely ok with the result.</br>
@@ -20,7 +21,7 @@ check this [branch](https://github.com/HirayClay/StackLayoutManager/tree/orienta
 ### Demo Apk
 [download](static/app.apk)
 
-# Usage
+# Usage（only a demo project ,be careful use in your production env）
 ```java
 
 Config config = new Config();
