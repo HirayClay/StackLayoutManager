@@ -19,7 +19,7 @@ check this [branch](https://github.com/HirayClay/StackLayoutManager/tree/orienta
 
 
 ### Demo Apk
-[download](static/app.apk)
+[download](https://github.com/HirayClay/StackLayoutManager/blob/orientation/static/app-vertical.apk)
 
 # Usage（only a demo project ,take care in your production env）
 ```java
