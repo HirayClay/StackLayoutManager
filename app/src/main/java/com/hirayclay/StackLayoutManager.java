@@ -13,7 +13,6 @@ import android.view.ViewConfiguration;
 
 import java.util.List;
 
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static com.hirayclay.Align.LEFT;
 import static com.hirayclay.Align.RIGHT;
 import static com.hirayclay.Align.TOP;
@@ -32,6 +31,14 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
 
     private static final String TAG = "StackLayoutManager";
 
+    private static final int INVALID_OFFSET = Integer.MIN_VALUE;
+
+    public static final int NO_POSITION = -1;
+
+    public static final long NO_ID = -1;
+
+    public static final int INVALID_TYPE = -1;
+
     //the space unit for the stacked item
     private int mSpace = 60;
     /**
@@ -46,7 +53,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     private ObjectAnimator animator;
     private int animateValue;
     private int duration = 300;
-    private RecyclerView.Recycler recycler;
+    private RecyclerView.Recycler mRecycler;
     private int lastAnimateValue;
     //the max stacked item count;
     private int maxStackCount = 4;
@@ -60,6 +67,9 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     private VelocityTracker mVelocityTracker = VelocityTracker.obtain();
     private Align direction = LEFT;
     private LayoutState mLayoutState;
+    private State mState;
+    private int mOrientation;
+    private OrientationHelper mOrientationHelper;
 
     StackLayoutManager(Config config) {
         this();
@@ -79,7 +89,13 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, State state) {
-        this.recycler = recycler;
+        //we cache mRecycler for animator
+        mRecycler = recycler;
+        mState = state;
+
+        if (state.getItemCount() == 0 && state.isPreLayout())
+            return;
+        ensureLayoutState();
         detachAndScrapAttachedViews(recycler);
         //got the mUnit basing on the first child,of course we assume that  all the item has the same size
         View anchorView = recycler.getViewForPosition(0);
@@ -100,7 +116,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     public void onLayoutCompleted(State state) {
         super.onLayoutCompleted(state);
         if (!initial) {
-            fill(recycler, state, initialOffset);
+            fill(mRecycler, state, initialOffset);
             initial = true;
         }
     }
@@ -116,7 +132,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
             return -1;
         int delta = direction.layoutDirection * dy;
         if (direction == LEFT)
-            return fillFromLeft(recycler, state,delta);
+            return fillFromLeft(recycler, state, delta);
         if (direction == RIGHT)
             return fillFromRight(recycler, delta);
         if (direction == TOP)
@@ -215,11 +231,11 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     private int fillFromLeft(RecyclerView.Recycler recycler, State state, int dy) {
         if (mTotalOffset + dy < 0 || (mTotalOffset + dy + 0f) / mUnit > getItemCount() - 1)
             return 0;
-        detachAndScrapAttachedViews(recycler);
+//        detachAndScrapAttachedViews(mRecycler);
         mTotalOffset += direction.layoutDirection * dy;
         ensureLayoutState();
         mLayoutState.prepareStartAndEnd();
-        layoutChildrenByLayoutState(recycler,state);
+        layoutChildrenByLayoutState(recycler, state);
         return dy;
     }
 
@@ -257,21 +273,6 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     private void ensureLayoutState() {
         if (mLayoutState == null)
             mLayoutState = new LayoutState();
-    }
-
-    private View getView(RecyclerView.Recycler recycler, int position) {
-//        List<RecyclerView.ViewHolder> scrapList = recycler.getScrapList();
-//        if (scrapList != null && !scrapList.isEmpty()) {
-//            int size = scrapList.size();
-//            for (int j = 0; j < size; j++) {
-//                RecyclerView.ViewHolder vh = scrapList.get(j);
-//                View itemView = vh.itemView;
-//                RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) itemView.getLayoutParams();
-//                if (layoutParams.getViewLayoutPosition() == i)
-//                    return itemView;
-//            }
-//        }
-        return recycler.getViewForPosition(position);
     }
 
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
@@ -477,7 +478,8 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     public void setAnimateValue(int animateValue) {
         this.animateValue = animateValue;
         int dy = this.animateValue - lastAnimateValue;
-        fill(recycler, null, direction.layoutDirection * dy);
+        RecyclerView recyclerView;
+        fill(mRecycler, mState, direction.layoutDirection * dy);
         lastAnimateValue = animateValue;
     }
 
@@ -529,6 +531,24 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         return new RecyclerView.LayoutParams(RecyclerView.LayoutParams.WRAP_CONTENT, RecyclerView.LayoutParams.WRAP_CONTENT);
     }
 
+
+    /**
+     * @param recycler    {@link android.support.v7.widget.RecyclerView.Recycler}
+     * @param layoutState {@link LayoutState}
+     */
+    private void recycleViewByLayoutState(RecyclerView.Recycler recycler, LayoutState layoutState) {
+        //just return,it is now in layout pass
+        if (!layoutState.mRecycle)
+            return;
+        if (canScrollHorizontally()) {
+
+        } else {
+
+        }
+    }
+
+    // **********************helper class below**********************************//
+
     @SuppressWarnings("unused")
     public interface CallBack {
 
@@ -544,6 +564,13 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
      * optimizing bullshit code
      */
     private class LayoutState {
+        static final int LAYOUT_START = -1;
+
+        static final int LAYOUT_END = 1;
+
+        static final int ITEM_DIRECTION_HEAD = -1;
+
+        static final int ITEM_DIRECTION_TAIL = 1;
         /**
          * scroll from end to start(e.g. from bottom to top when vertical or right to left when horizontal)
          */
@@ -598,7 +625,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
          * @return true if there is no more element
          */
         public boolean hasMore(State state) {
-            return !(mCurrentPosition > end)&&mCurrentPosition<state.getItemCount();
+            return mCurrentPosition >= 0 && mCurrentPosition < state.getItemCount();
         }
 
 
@@ -624,15 +651,33 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     }
 
 
-    /**
-     * recycle view out of bound
-     *
-     * @param recycler    {@link android.support.v7.widget.RecyclerView.Recycler}
-     * @param layoutState {@link LayoutState}
-     */
-    private void recycleViewByLayoutState(RecyclerView.Recycler recycler, LayoutState layoutState) {
-        if (canScrollHorizontally()) {
-        }
-    }
+    class AnchorInfo {
+        int mPosition;
+        int mCoordinate;
+        boolean mLayoutFromEnd;
+        boolean mValid;
 
+        AnchorInfo() {
+            reset();
+        }
+
+        void reset() {
+            mPosition = NO_POSITION;
+            mCoordinate = INVALID_OFFSET;
+            mLayoutFromEnd = false;
+            mValid = false;
+        }
+
+        public void assignFromView(View child) {
+            if (mLayoutFromEnd) {
+                mCoordinate = mOrientationHelper.getDecoratedEnd(child)
+                        + mOrientationHelper.getTotalSpaceChange();
+            } else {
+                mCoordinate = mOrientationHelper.getDecoratedStart(child);
+            }
+
+            mPosition = getPosition(child);
+        }
+
+    }
 }
