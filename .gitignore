@@ -5,6 +5,7 @@
 /.idea/libraries
 /.idea/vcs.xml
 /.idea/markdown-navigator
+.idea/misc.xml
 .DS_Store
 /build
 /captures
