@@ -80,6 +80,56 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     private boolean mReverseLayout = false;
     private boolean mStackFromEnd = false;
 
+    private View.OnTouchListener mTouchListener = new TouchDealer();
+    private RecyclerView.OnFlingListener mOnFlingListener = new FlingDealer();
+
+    private class TouchDealer implements View.OnTouchListener {
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+
+            mVelocityTracker.addMovement(event);
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                if (animator != null && animator.isRunning())
+                    animator.cancel();
+            }
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                if (v.isPressed()) v.performClick();
+                mVelocityTracker.computeCurrentVelocity(1000, 14000);
+                float xVelocity = mVelocityTracker.getXVelocity();
+                int o = mTotalOffset % mUnit;
+                int scrollX;
+                if (Math.abs(xVelocity) < mMinVelocityX && o != 0) {
+                    if (o >= mUnit / 2)
+                        scrollX = mUnit - o;
+                    else scrollX = -o;
+                    int dur = (int) (Math.abs((scrollX + 0f) / mUnit) * duration);
+                    brewAndStartAnimator(dur, scrollX);
+                }
+            }
+            return false;
+        }
+    }
+
+    private class FlingDealer extends RecyclerView.OnFlingListener {
+
+        @Override
+        public boolean onFling(int velocityX, int velocityY) {
+            int o = mTotalOffset % mUnit;
+            int s = mUnit - o;
+            int scrollX;
+            int vel = absMax(velocityX, velocityY);
+            if (vel * direction.layoutDirection > 0) {
+                scrollX = s;
+            } else
+                scrollX = -o;
+            int dur = computeSettleDuration(Math.abs(scrollX), Math.abs(vel));
+            brewAndStartAnimator(dur, scrollX);
+            return true;
+        }
+    }
+
+
     StackLayoutManager(Config config) {
         this();
         this.maxStackCount = config.maxStackCount;
@@ -89,7 +139,6 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         this.scaleRatio = config.scaleRatio;
         this.direction = config.align;
     }
-
 
     @SuppressWarnings("unused")
     public StackLayoutManager() {
@@ -181,6 +230,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         return false;
     }
 
+
     @Google
     private void updateLayoutToFillEnd(AnchorInfo mAnchorInfo) {
         int itemPosition = mAnchorInfo.mPosition;
@@ -189,7 +239,6 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         mLayoutState.mCurrentPosition = itemPosition;
         mLayoutState.mOffset = coordinate;
     }
-
 
     @Override
     public void onItemsRemoved(RecyclerView recyclerView, int positionStart, int itemCount) {
@@ -354,50 +403,6 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         if (mOrientationHelper == null)
             mOrientationHelper = OrientationHelper.createOrientationHelper(this, mOrientation);
     }
-
-    private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            mVelocityTracker.addMovement(event);
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                if (animator != null && animator.isRunning())
-                    animator.cancel();
-            }
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                if (v.isPressed()) v.performClick();
-                mVelocityTracker.computeCurrentVelocity(1000, 14000);
-                float xVelocity = mVelocityTracker.getXVelocity();
-                int o = mTotalOffset % mUnit;
-                int scrollX;
-                if (Math.abs(xVelocity) < mMinVelocityX && o != 0) {
-                    if (o >= mUnit / 2)
-                        scrollX = mUnit - o;
-                    else scrollX = -o;
-                    int dur = (int) (Math.abs((scrollX + 0f) / mUnit) * duration);
-                    brewAndStartAnimator(dur, scrollX);
-                }
-            }
-            return false;
-        }
-
-    };
-
-    private RecyclerView.OnFlingListener mOnFlingListener = new RecyclerView.OnFlingListener() {
-        @Override
-        public boolean onFling(int velocityX, int velocityY) {
-            int o = mTotalOffset % mUnit;
-            int s = mUnit - o;
-            int scrollX;
-            int vel = absMax(velocityX, velocityY);
-            if (vel * direction.layoutDirection > 0) {
-                scrollX = s;
-            } else
-                scrollX = -o;
-            int dur = computeSettleDuration(Math.abs(scrollX), Math.abs(vel));
-            brewAndStartAnimator(dur, scrollX);
-            return true;
-        }
-    };
 
     private int absMax(int a, int b) {
         if (Math.abs(a) > Math.abs(b))
