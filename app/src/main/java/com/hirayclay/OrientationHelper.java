@@ -7,11 +7,11 @@ import android.widget.LinearLayout;
 
 /**
  * Created by hiray on 2018/1/16.
- * copy from {@link android.support.v7.widget.OrientationHelper}
+ * quoted from {@link android.support.v7.widget.OrientationHelper}
  *
  * @author hiray
  */
-
+@Google
 public abstract class OrientationHelper {
 
     private static final int INVALID_SIZE = Integer.MIN_VALUE;
