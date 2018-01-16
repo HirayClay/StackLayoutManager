@@ -2,4 +2,5 @@
     <string name="app_name">StackLayoutManager</string>
     <string name="stacklayoutmanager">com.hirayclay.StackLayoutManager</string>
     <string name="reset">reset</string>
+    <string name="removethird">RemoveThird</string>
 </resources>
