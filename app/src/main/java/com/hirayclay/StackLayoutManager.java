@@ -3,12 +3,12 @@ package com.hirayclay;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
-import android.view.View.MeasureSpec;
 import android.view.ViewConfiguration;
 
 /**
@@ -23,16 +23,14 @@ import android.view.ViewConfiguration;
 
 public class StackLayoutManager extends RecyclerView.LayoutManager {
 
-    private static final String TAG = "StackLayoutManager";
-
 
     //the space unit for the stacked item
-    int mSpace = 60;
+    private int mSpace = 60;
     //the offset unit,deciding current position(the sum of one child's width and one space)
-    int mUnit;
+    private int mUnit;
     //the counting variable ,record the total offset
-    int mTotalOffset;
-    ObjectAnimator animator;
+    private int mTotalOffset;
+    private ObjectAnimator animator;
     private int animateValue;
     private int duration = 300;
     private RecyclerView.Recycler recycler;
@@ -46,6 +44,57 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     private int mMinVelocityX;
     private VelocityTracker mVelocityTracker = VelocityTracker.obtain();
     private int pointerId;
+    private ItemChangeListener mItemSelectedListener;
+    //the item position in the base position
+    private int mCurrItem;
+    private View.OnTouchListener mFingerUpDealer = new FingerUpDealer();
+    private RecyclerView.OnFlingListener mFlingDealer = new FlingDealer();
+
+    class FingerUpDealer implements View.OnTouchListener {
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            mVelocityTracker.addMovement(event);
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                if (animator != null
+                        && animator.isRunning())
+                    animator.cancel();
+                pointerId = event.getPointerId(0);
+            }
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                mVelocityTracker.computeCurrentVelocity(1000, 14000);
+                float xVelocity = VelocityTrackerCompat.getXVelocity(mVelocityTracker, pointerId);
+                int o = mTotalOffset % mUnit;
+                int scrollX;
+                if (Math.abs(xVelocity) < mMinVelocityX)
+                    if (o != 0) {
+                        if (o >= mUnit / 2)
+                            scrollX = mUnit - o;
+                        else scrollX = -o;
+                        int dur = (int) (Math.abs((scrollX + 0f) / mUnit) * duration);
+                        brewAndStartAnimator(dur, scrollX);
+                    }
+            }
+            return false;
+        }
+    }
+
+    class FlingDealer extends RecyclerView.OnFlingListener {
+
+        @Override
+        public boolean onFling(int velocityX, int velocityY) {
+            int o = mTotalOffset % mUnit;
+            int s = mUnit - o;
+            int scrollX;
+            if (velocityX > 0) {
+                scrollX = s;
+            } else
+                scrollX = -o;
+            int dur = computeSettleDuration(Math.abs(scrollX), Math.abs(velocityX))/* (int) (3000f / Math.abs(velocityX) * duration)*/;
+            brewAndStartAnimator(dur, scrollX);
+            return true;
+        }
+    }
 
     public StackLayoutManager(Config config) {
         this.maxStackCount = config.maxStackCount;
@@ -53,10 +102,14 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         this.initialStackCount = config.initialStackCount;
         this.secondaryScale = config.secondaryScale;
         this.scaleRatio = config.scaleRatio;
+        this.mItemSelectedListener = config.itemSelectedListener;
+        setAutoMeasureEnabled(true);
     }
 
 
+    @SuppressWarnings("unused")
     public StackLayoutManager() {
+        setAutoMeasureEnabled(true);
     }
 
     @Override
@@ -69,6 +122,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         mUnit = anchorView.getMeasuredWidth() + mSpace;
         //because this method will be called twice
         initialOffset = initialStackCount * mUnit;
+        mCurrItem = initialStackCount;
         mMinVelocityX = ViewConfiguration.get(anchorView.getContext()).getScaledMinimumFlingVelocity();
         fill(recycler, 0);
 
@@ -86,7 +140,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     /**
      * the magic function :).all the work including computing ,recycling,and layout is done here
      *
-     * @param recycler
+     * @param recycler ..
      */
     private int fill(RecyclerView.Recycler recycler, int dy) {
         if (mTotalOffset + dy < 0 || (mTotalOffset + dy + 0f) / mUnit > getItemCount() - 1)
@@ -103,8 +157,8 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 
 
         int curPos = mTotalOffset / mUnit;
-        float n = (mTotalOffset + 0f) / mUnit;
-        float x = n % 1f;
+//        float n = (mTotalOffset + 0f) / mUnit;
+//        float x = n % 1f;
         int start = curPos - maxStackCount >= 0 ? curPos - maxStackCount : 0;
         int end = curPos + maxStackCount > getItemCount() ? getItemCount() : curPos + maxStackCount;
 
@@ -127,71 +181,16 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         return dy;
     }
 
-    @Override
-    public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state, int widthSpec, int heightSpec) {
-        detachAndScrapAttachedViews(recycler);
-        View anchorView = recycler.getViewForPosition(0);
-        measureChild(anchorView,0,0);
-        int height  = anchorView.getMeasuredHeight();
-        super.onMeasure(recycler,state,widthSpec, MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
-    }
-
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onAttachedToWindow(RecyclerView view) {
         super.onAttachedToWindow(view);
         //check when raise finger and settle to the appropriate item
-        view.setOnTouchListener(new View.OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                mVelocityTracker.addMovement(event);
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    if (animator != null
-                            && animator.isRunning())
-                        animator.cancel();
-                    pointerId = event.getPointerId(0);
-
-                }
-
-
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    mVelocityTracker.computeCurrentVelocity(1000, 14000);
-                    float xVelocity = VelocityTrackerCompat.getXVelocity(mVelocityTracker, pointerId);
-
-                    int o = mTotalOffset % mUnit;
-                    int scrollX;
-                    if (Math.abs(xVelocity) < mMinVelocityX)
-                        if (o != 0) {
-                            if (o >= mUnit / 2)
-                                scrollX = mUnit - o;
-                            else scrollX = -o;
-                            int dur = (int) (Math.abs((scrollX + 0f) / mUnit) * duration);
-                            brewAndStartAnimator(dur, scrollX);
-                        }
-                }
-                return false;
-            }
-
-        });
-
-        view.setOnFlingListener(new RecyclerView.OnFlingListener() {
-            @Override
-            public boolean onFling(int velocityX, int velocityY) {
-                int o = mTotalOffset % mUnit;
-                int s = mUnit - o;
-                int scrollX;
-                if (velocityX > 0) {
-                    scrollX = s;
-                } else
-                    scrollX = -o;
-                int dur = computeSettleDuration(Math.abs(scrollX), Math.abs(velocityX))/* (int) (3000f / Math.abs(velocityX) * duration)*/;
-                brewAndStartAnimator(dur, scrollX);
-                return true;
-            }
-        });
+        view.setOnTouchListener(mFingerUpDealer);
+        view.setOnFlingListener(mFlingDealer);
     }
 
-    int computeSettleDuration(int distance, float xvel) {
+    private int computeSettleDuration(int distance, float xvel) {
         float sWeight = 0.5f * distance / mUnit;
         float velWeight = 0.5f * mMinVelocityX / xvel;
 
@@ -206,6 +205,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             @Override
             public void onAnimationEnd(Animator animation) {
                 lastAnimateValue = 0;
+                onItemSelected();
             }
 
             @Override
@@ -216,7 +216,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /******************************precise math method*******************************/
-    public float alpha(int position) {
+    private float alpha(int position) {
         float alpha;
         int curPos = mTotalOffset / mUnit;
         float n = (mTotalOffset + .0f) / mUnit;
@@ -224,14 +224,13 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             alpha = 1.0f;
         else {
             //temporary linear map,barely ok
-            float o = 1 - (n - position) / maxStackCount;
-            alpha = o;
+            alpha = 1 - (n - position) / maxStackCount;
         }
         //for precise checking,oh may be kind of dummy
         return alpha <= 0.001f ? 0 : alpha;
     }
 
-    public float scale(int position) {
+    private float scale(int position) {
         float scale;
         int curPos = this.mTotalOffset / mUnit;
         float n = (mTotalOffset + .0f) / mUnit;
@@ -261,7 +260,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
      * @param position the index of the item in the adapter
      * @return the appropriate left for the given item
      */
-    public int left(int position) {
+    private int left(int position) {
 
         int left;
         int curPos = mTotalOffset / mUnit;
@@ -279,7 +278,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 
             if (position == curPos + 2) {
                 float prevItemScale = scale(position - 1);
-                left = (int) (mSpace * maxStackCount + position * mUnit - mTotalOffset -(1-prevItemScale)*(mUnit- mSpace));
+                left = (int) (mSpace * maxStackCount + position * mUnit - mTotalOffset - (1 - prevItemScale) * (mUnit - mSpace));
 
             } else {
                 left = mSpace * maxStackCount + position * mUnit - mTotalOffset;
@@ -292,6 +291,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     }
 
 
+    @SuppressWarnings("unused")
     public void setAnimateValue(int animateValue) {
         this.animateValue = animateValue;
         int dy = this.animateValue - lastAnimateValue;
@@ -299,6 +299,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         lastAnimateValue = animateValue;
     }
 
+    @SuppressWarnings("unused")
     public int getAnimateValue() {
         return animateValue;
     }
@@ -308,10 +309,10 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
      * view is out of the bound after the dy is applied
      *
      * @param view ..
-     * @param dy
-     * @return
+     * @param dy   ..
+     * @return true if need recycle
      */
-    public boolean shouldRecycle(View view/*int position*/, int dy) {
+    private boolean shouldRecycle(View view/*int position*/, int dy) {
         return view.getLeft() - dy < 0 || view.getRight() - dy > getWidth();
     }
 
@@ -330,5 +331,22 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
         return new RecyclerView.LayoutParams(RecyclerView.LayoutParams.WRAP_CONTENT, RecyclerView.LayoutParams.WRAP_CONTENT);
+    }
+
+    //todo check that item selected in a appropriate time
+    public void setItemSelectedListener(ItemChangeListener itemSelectedListener) {
+        this.mItemSelectedListener = mItemSelectedListener;
+    }
+
+    private void onItemSelected() {
+        int i = mTotalOffset / mUnit;
+        if (mItemSelectedListener != null && mCurrItem != i) {
+            mCurrItem = i;
+            mItemSelectedListener.onItemChange(recycler.getViewForPosition(mCurrItem), mCurrItem);
+        }
+    }
+
+    public int getmCurrItem() {
+        return mCurrItem;
     }
 }

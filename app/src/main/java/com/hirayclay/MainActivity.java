@@ -3,6 +3,8 @@ package com.hirayclay;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +13,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ItemChangeListener {
     private static final String TAG = "MainActivity";
     @Bind(R.id.recyclerview)
     RecyclerView recyclerview;
@@ -45,8 +47,14 @@ public class MainActivity extends AppCompatActivity {
         config.maxStackCount = 4;
         config.initialStackCount = 2;
         config.space = getResources().getDimensionPixelOffset(R.dimen.item_space);
+        config.itemSelectedListener = this;
         recyclerview.setLayoutManager(new StackLayoutManager(config));
         recyclerview.setAdapter(new StackAdapter(datas));
 
+    }
+
+    @Override
+    public void onItemChange(View itemView, int position) {
+        Toast.makeText(getApplicationContext(),String.valueOf(position),Toast.LENGTH_SHORT).show();
     }
 }

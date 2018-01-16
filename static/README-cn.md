@@ -8,13 +8,14 @@
 博客是实现那天写的，只写了从右至左滑动叠加这一种思路，不过最原始的想法已经在里面了，至于从左到右滑动叠加，可以参考
 这个[分支](https://github.com/HirayClay/StackLayoutManager/tree/orientation)的代码,其实也就是对前一种情况
 做一个对称变换，不过有些小细节注意一下.
+目前master分支上的代码只支持左右两种方向。orientation分支除了左右方向外还支持垂直方向（只有top方向）
 
 
 # 效果
 <img src="art_new.gif" width="559px" height="256px"/>
 
 ### 安装包
-[download](static/app.apk)
+[download](https://github.com/HirayClay/StackLayoutManager/blob/orientation/static/app-vertical.apk)
 
 ## 使用示例
 ```java
