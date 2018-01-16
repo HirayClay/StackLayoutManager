@@ -23,6 +23,7 @@ config.scaleRatio = 0.5f;
 config.maxStackCount = 3;
 config.initialStackCount = 2;
 config.space = 70;
+config.parallex = 1.5f;//parallex factor
 config.align= Align.RIGHT
 recyclerview.setLayoutManager(new StackLayoutManager(config));
 recyclerview.setAdapter(new StackAdapter(datas));
