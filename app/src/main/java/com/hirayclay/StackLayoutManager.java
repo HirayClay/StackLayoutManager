@@ -92,24 +92,26 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         //we cache mRecycler for animator
         mRecycler = recycler;
         mState = state;
-
         if (state.getItemCount() == 0 && state.isPreLayout())
             return;
-        ensureLayoutState();
         detachAndScrapAttachedViews(recycler);
-        //got the mUnit basing on the first child,of course we assume that  all the item has the same size
+        //assume that every item has same size ;this is the precondition of StackLayoutManager
+        ensureContractSizeAndEtc(recycler);
+        ensureLayoutState();
+        fill(recycler, state, 0);
+
+    }
+
+    private void ensureContractSizeAndEtc(RecyclerView.Recycler recycler) {
         View anchorView = recycler.getViewForPosition(0);
         measureChildWithMargins(anchorView, 0, 0);
         mItemWidth = anchorView.getMeasuredWidth();
         mItemHeight = anchorView.getMeasuredHeight();
+        initialOffset = initialStackCount * mUnit;
+        mMinVelocityX = ViewConfiguration.get(anchorView.getContext()).getScaledMinimumFlingVelocity();
         if (canScrollHorizontally())
             mUnit = mItemWidth + mSpace;
         else mUnit = mItemHeight + mSpace;
-        //because this method will be called twice
-        initialOffset = initialStackCount * mUnit;
-        mMinVelocityX = ViewConfiguration.get(anchorView.getContext()).getScaledMinimumFlingVelocity();
-        fill(recycler, state, 0);
-
     }
 
     @Override
