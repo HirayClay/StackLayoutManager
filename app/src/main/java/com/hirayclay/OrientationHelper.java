@@ -30,7 +30,7 @@ public abstract class OrientationHelper {
         mLayoutManager = layoutManager;
     }
 
-    /**
+    /**其实就是记录RV的尺寸的改变，比如移除item之后重新布局发现尺寸变了（当然是在pre-layout之后）
      * Call this method after onLayout method is complete if state is NOT pre-layout.
      * This method records information like layout bounds that might be useful in the next layout
      * calculations.

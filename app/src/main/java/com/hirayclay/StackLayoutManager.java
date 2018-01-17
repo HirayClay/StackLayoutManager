@@ -79,6 +79,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     private int mOrientation = HORIZONTAL;
     private boolean mReverseLayout = false;
     private boolean mStackFromEnd = false;
+    private boolean mShouldReverseLayout = false;
 
     private View.OnTouchListener mTouchListener = new TouchDealer();
     private RecyclerView.OnFlingListener mOnFlingListener = new FlingDealer();
@@ -153,16 +154,25 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     }
 
     /**
-     * @param reverseLayout reverse the alignment (from left-to-right to right-to-left
-     *                      or vertical reverse)if true
+     * Used to reverse item traversal and layout order.
+     * This behaves similar to the layout change for RTL views. When set to true, first item is
+     * laid out at the end of the UI, second item is laid out before it etc.
+     * <p>
+     * For horizontal layouts, it depends on the layout direction.
+     * When set to true, If {@link android.support.v7.widget.RecyclerView} is LTR, than it will
+     * layout from RTL, if {@link android.support.v7.widget.RecyclerView}} is RTL, it will layout
+     * from LTR.
      */
     public void setReverseLayout(boolean reverseLayout) {
+        if (mReverseLayout == reverseLayout)
+            return;
         mReverseLayout = reverseLayout;
+        requestLayout();
     }
 
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, State state) {
-        //we cache mRecycler for animator
+        //we cache mRecycler mState for animator
         mRecycler = recycler;
         mState = state;
         if (state.getItemCount() == 0 && state.isPreLayout())
@@ -171,9 +181,12 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         //assume that every item has same size ;this is the precondition of StackLayoutManager
         ensureContractSizeAndEtc(recycler);
         ensureLayoutState();
+        // resolve layout direction
+        resolveShouldLayoutReverse();
         if (!mAnchorInfo.mValid) {
             updateAnchorInfoForLayout(recycler, state, mAnchorInfo);
             mAnchorInfo.mValid = true;
+            mAnchorInfo.mLayoutFromEnd = mReverseLayout ^ mStackFromEnd;
         }
         int extraForStart;
         int extraForEnd;
@@ -183,19 +196,21 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         } else {
             updateLayoutToFillEnd(mAnchorInfo);
         }
-//        fill(recycler, state, 0);
+
+        //we record the new size after pre-layout
+        if (!state.isPreLayout())
+            mOrientationHelper.onLayoutComplete();
+        else {
+            //this layout pass is done ,reset anchor for next pass if there is
+            mAnchorInfo.reset();
+        }
 
     }
 
     @Override
     public void onLayoutCompleted(State state) {
         super.onLayoutCompleted(state);
-        //we record the new size
-        mOrientationHelper.onLayoutComplete();
-//        if (!initial) {
-//            fill(mRecycler, state, initialOffset);
-//            initial = true;
-//        }
+        mAnchorInfo.reset();
     }
 
     private void ensureContractSizeAndEtc(RecyclerView.Recycler recycler) {
@@ -238,6 +253,19 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         mLayoutState.mAvailable = mOrientationHelper.getEndAfterPadding() - coordinate;
         mLayoutState.mCurrentPosition = itemPosition;
         mLayoutState.mOffset = coordinate;
+    }
+
+    @Google
+    private void resolveShouldLayoutReverse() {
+        if (mOrientation == VERTICAL || !isRTL()) {
+            mShouldReverseLayout = mReverseLayout;
+        } else {
+            mShouldReverseLayout = !mReverseLayout;
+        }
+    }
+
+    private boolean isRTL() {
+        return getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
     }
 
     @Override
@@ -758,6 +786,10 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     class AnchorInfo {
         int mPosition;
         int mCoordinate;
+        /**
+         * 是否布局是从End开始，由reverseLayout和stackFromEnd决定，
+         * 两者只要不同那么布局都是End开始
+         */
         boolean mLayoutFromEnd;
         boolean mValid;
 

@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * Created by hiray on 2018/1/16.
- * just note out some class or methods that quoted from android framework source
+ * just note out some crucial class or methods that quoted from android framework source
  * @author hiray
  */
 @Target({ElementType.TYPE,ElementType.METHOD})
