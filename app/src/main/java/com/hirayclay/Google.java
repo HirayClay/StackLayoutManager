@@ -8,6 +8,8 @@ import java.lang.annotation.Target;
 /**
  * Created by hiray on 2018/1/16.
  * just note out some crucial class or methods that quoted from android framework source
+ * In this case , StackLayoutManager has nothing different from LinearLayoutManager,just applied with
+ * scale transformation, so i decide to make it like LLM in "google way"
  * @author hiray
  */
 @Target({ElementType.TYPE,ElementType.METHOD})
