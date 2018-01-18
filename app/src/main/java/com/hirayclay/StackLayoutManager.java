@@ -49,6 +49,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     private int mCurrItem;
     private View.OnTouchListener mFingerUpDealer = new FingerUpDealer();
     private RecyclerView.OnFlingListener mFlingDealer = new FlingDealer();
+    private RecyclerView.State state;
 
     class FingerUpDealer implements View.OnTouchListener {
 
@@ -115,17 +116,25 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         this.recycler = recycler;
+        this.state = state;
         detachAndScrapAttachedViews(recycler);
         //got the mUnit basing on the first child,of course we assume that  all the item has the same size
-        View anchorView = recycler.getViewForPosition(0);
-        measureChild(anchorView, 0, 0);
-        mUnit = anchorView.getMeasuredWidth() + mSpace;
-        //because this method will be called twice
-        initialOffset = initialStackCount * mUnit;
-        mCurrItem = initialStackCount;
-        mMinVelocityX = ViewConfiguration.get(anchorView.getContext()).getScaledMinimumFlingVelocity();
+        if (mUnit == 0) {
+            View anchorView = recycler.getViewForPosition(0);
+            measureChild(anchorView, 0, 0);
+            mUnit = anchorView.getMeasuredWidth() + mSpace;
+            //because this method will be called twice
+            initialOffset = initialStackCount * mUnit;
+            mCurrItem = initialStackCount;
+            mMinVelocityX = ViewConfiguration.get(anchorView.getContext()).getScaledMinimumFlingVelocity();
+        }
         fill(recycler, 0);
 
+    }
+
+    @Override
+    public boolean supportsPredictiveItemAnimations() {
+        return true;
     }
 
     @Override
@@ -135,6 +144,13 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
             fill(recycler, initialOffset);
             initial = true;
         }
+    }
+
+    @Override
+    public void onAdapterChanged(RecyclerView.Adapter oldAdapter, RecyclerView.Adapter newAdapter) {
+        //data source change,we need reset
+        mUnit = initialOffset = 0;
+
     }
 
     /**
@@ -161,11 +177,14 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
 //        float x = n % 1f;
         int start = curPos - maxStackCount >= 0 ? curPos - maxStackCount : 0;
         int end = curPos + maxStackCount > getItemCount() ? getItemCount() : curPos + maxStackCount;
+        int extra = 0;
 
         //layout view
-        for (int i = start; i < end; i++) {
+        for (int i = start; i < end + extra; i++) {
             View view = recycler.getViewForPosition(i);
-
+            RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) view.getLayoutParams();
+            if (layoutParams.isItemRemoved() && state.isPreLayout())
+                extra++;
             float scale = scale(i);
             float alpha = alpha(i);
 

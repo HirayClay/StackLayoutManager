@@ -4,24 +4,35 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="#f5f4f4"
+    android:orientation="vertical"
     tools:context="com.hirayclay.MainActivity">
 
+    <LinearLayout style="@style/HorizontalLL">
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="reset"
-        android:textAllCaps="false" />
+        <Button
+            android:id="@+id/button"
+            style="@style/Button"
+            android:text="reset" />
+
+        <Button
+            android:id="@+id/button_del"
+            style="@style/Button"
+            android:text="remove" />
+
+        <Button
+            android:id="@+id/button_add"
+            style="@style/Button"
+            android:text="insert" />
+    </LinearLayout>
+
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:overScrollMode="never"
         app:layoutManager="@string/StackLayoutManager"
-        tools:listitem="@layout/item_card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        tools:listitem="@layout/item_card" />
 
 </LinearLayout>

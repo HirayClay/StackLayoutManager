@@ -17,6 +17,8 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
     private static final String TAG = "MainActivity";
     @Bind(R.id.recyclerview)
     RecyclerView recyclerview;
+    private List<String> datas;
+    private StackAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 
     @OnClick(R.id.button)
     public void setData() {
-        List<String> datas = new ArrayList<>();
+        datas = new ArrayList<>();
         datas.add("Item1");
         datas.add("Item2");
         datas.add("Item3");
@@ -49,12 +51,24 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
         config.space = getResources().getDimensionPixelOffset(R.dimen.item_space);
         config.itemSelectedListener = this;
         recyclerview.setLayoutManager(new StackLayoutManager(config));
-        recyclerview.setAdapter(new StackAdapter(datas));
+        recyclerview.setAdapter(adapter = new StackAdapter(datas));
 
+    }
+
+    @OnClick(R.id.button_del)
+    public void remove() {
+        datas.remove(1);
+        adapter.notifyItemRemoved(1);
+    }
+
+    @OnClick(R.id.button_add)
+    public void insert() {
+        datas.add(1, "newItem");
+        adapter.notifyItemInserted(1);
     }
 
     @Override
     public void onItemChange(View itemView, int position) {
-        Toast.makeText(getApplicationContext(),String.valueOf(position),Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), String.valueOf(position), Toast.LENGTH_SHORT).show();
     }
 }
