@@ -149,7 +149,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onAdapterChanged(RecyclerView.Adapter oldAdapter, RecyclerView.Adapter newAdapter) {
         //data source change,we need reset
-        mUnit = initialOffset = 0;
+        mUnit = mTotalOffset = 0;
 
     }
 
@@ -175,6 +175,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         int curPos = mTotalOffset / mUnit;
 //        float n = (mTotalOffset + 0f) / mUnit;
 //        float x = n % 1f;
+        //if there is item removed or added ,we cannot rely on mTotalOffset
         int start = curPos - maxStackCount >= 0 ? curPos - maxStackCount : 0;
         int end = curPos + maxStackCount > getItemCount() ? getItemCount() : curPos + maxStackCount;
         int extra = 0;
