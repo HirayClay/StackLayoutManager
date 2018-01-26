@@ -493,7 +493,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     public void setAnimateValue(int animateValue) {
         this.animateValue = animateValue;
         int dy = this.animateValue - lastAnimateValue;
-        fill(recycler, direction.layoutDirection * dy);
+        fill(recycler, direction.layoutDirection * dy,false);
         lastAnimateValue = animateValue;
     }
 
