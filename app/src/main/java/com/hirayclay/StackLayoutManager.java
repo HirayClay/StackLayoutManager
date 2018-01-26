@@ -88,10 +88,22 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
             mUnit = mItemWidth + mSpace;
         else mUnit = mItemHeight + mSpace;
         //because this method will be called twice
-        initialOffset = initialStackCount * mUnit;
+        initialOffset = resolveInitialOffset();
         mMinVelocityX = ViewConfiguration.get(anchorView.getContext()).getScaledMinimumFlingVelocity();
         fill(recycler, 0);
 
+    }
+
+    //we need take direction into account when calc initialOffset
+    private int resolveInitialOffset() {
+        int offset = initialStackCount * mUnit;
+        if (direction == LEFT)
+            return offset;
+        if (direction == RIGHT)
+            return -offset;
+        if (direction == TOP)
+            return offset;
+        else return offset;
     }
 
     @Override
