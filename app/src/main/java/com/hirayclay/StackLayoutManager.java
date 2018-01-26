@@ -30,7 +30,6 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
 
     private static final String TAG = "StackLayoutManager";
 
-
     //the space unit for the stacked item
     private int mSpace = 60;
     /**
@@ -40,18 +39,22 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     //item width
     private int mItemWidth;
     private int mItemHeight;
-
-    //the counting variable ,record the total offset
+    //the counting variable ,record the total offset including parallex
     private int mTotalOffset;
+    //record the total offset without parallex
+    private int mRealOffset;
     private ObjectAnimator animator;
     private int animateValue;
     private int duration = 300;
     private RecyclerView.Recycler recycler;
     private int lastAnimateValue;
-    private int maxStackCount = 4;//the max stacked item count;
-    private int initialStackCount = 4;//initial stacked item
+    //the max stacked item count;
+    private int maxStackCount = 4;
+    //initial stacked item
+    private int initialStackCount = 4;
     private float secondaryScale = 0.8f;
     private float scaleRatio = 0.4f;
+    private float parallex = 1f;
     private int initialOffset;
     private boolean initial;
     private int mMinVelocityX;
@@ -67,6 +70,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         this.secondaryScale = config.secondaryScale;
         this.scaleRatio = config.scaleRatio;
         this.direction = config.align;
+        this.parallex = config.parallex;
     }
 
 
@@ -110,9 +114,15 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     public void onLayoutCompleted(RecyclerView.State state) {
         super.onLayoutCompleted(state);
         if (!initial) {
-            fill(recycler, initialOffset);
+            fill(recycler, initialOffset, false);
             initial = true;
         }
+    }
+
+    @Override
+    public void onAdapterChanged(RecyclerView.Adapter oldAdapter, RecyclerView.Adapter newAdapter) {
+        initial = false;
+        mTotalOffset = mRealOffset = 0;
     }
 
     /**
@@ -120,8 +130,11 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
      *
      * @param recycler ...
      */
-    private int fill(RecyclerView.Recycler recycler, int dy) {
+    private int fill(RecyclerView.Recycler recycler, int dy, boolean apply) {
         int delta = direction.layoutDirection * dy;
+        // multiply the parallex factor
+        if (apply)
+            delta = (int) (delta * parallex);
         if (direction == LEFT)
             return fillFromLeft(recycler, delta);
         if (direction == RIGHT)
@@ -129,6 +142,10 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         if (direction == TOP)
             return fillFromTop(recycler, delta);
         else return dy;
+    }
+
+    public int fill(RecyclerView.Recycler recycler, int dy) {
+        return fill(recycler, dy, true);
     }
 
     private int fillFromTop(RecyclerView.Recycler recycler, int dy) {
@@ -162,8 +179,9 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
             addView(view);
             measureChildWithMargins(view, 0, 0);
             int top = (int) (left(i) - (1 - scale) * view.getMeasuredHeight() / 2);
-            Log.i(TAG, "fillFromTop: pos:" + i + "  top:" + top + "    itemHeight" + mItemHeight);
-            layoutDecoratedWithMargins(view, left, top, view.getMeasuredWidth() + left, (view.getMeasuredHeight() + top));
+            int right = view.getMeasuredWidth() + left;
+            int bottom = view.getMeasuredHeight() + top;
+            layoutDecoratedWithMargins(view, left, top, right, bottom);
             view.setAlpha(alpha);
             view.setScaleY(scale);
             view.setScaleX(scale);
@@ -205,7 +223,11 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
             addView(view);
             measureChildWithMargins(view, 0, 0);
             int left = (int) (left(i) - (1 - scale) * view.getMeasuredWidth() / 2);
-            layoutDecoratedWithMargins(view, left, 0, left + view.getMeasuredWidth(), view.getMeasuredHeight());
+            int top = 0;
+            int right = left + view.getMeasuredWidth();
+            int bottom = view.getMeasuredHeight();
+
+            layoutDecoratedWithMargins(view, left, top, right, bottom);
             view.setAlpha(alpha);
             view.setScaleY(scale);
             view.setScaleX(scale);
@@ -246,7 +268,10 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
             addView(view);
             measureChildWithMargins(view, 0, 0);
             int left = (int) (left(i) - (1 - scale) * view.getMeasuredWidth() / 2);
-            layoutDecoratedWithMargins(view, left, 0, left + view.getMeasuredWidth(), view.getMeasuredHeight());
+            int top = 0;
+            int right = left + view.getMeasuredWidth();
+            int bottom = top + view.getMeasuredHeight();
+            layoutDecoratedWithMargins(view, left, top, right, bottom);
             view.setAlpha(alpha);
             view.setScaleY(scale);
             view.setScaleX(scale);
@@ -256,33 +281,27 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     }
 
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
-
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             mVelocityTracker.addMovement(event);
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                if (animator != null
-                        && animator.isRunning())
+                if (animator != null && animator.isRunning())
                     animator.cancel();
                 pointerId = event.getPointerId(0);
-
             }
-
-
             if (event.getAction() == MotionEvent.ACTION_UP) {
+                if (v.isPressed()) v.performClick();
                 mVelocityTracker.computeCurrentVelocity(1000, 14000);
                 float xVelocity = VelocityTrackerCompat.getXVelocity(mVelocityTracker, pointerId);
-
                 int o = mTotalOffset % mUnit;
                 int scrollX;
-                if (Math.abs(xVelocity) < mMinVelocityX)
-                    if (o != 0) {
-                        if (o >= mUnit / 2)
-                            scrollX = mUnit - o;
-                        else scrollX = -o;
-                        int dur = (int) (Math.abs((scrollX + 0f) / mUnit) * duration);
-                        brewAndStartAnimator(dur, scrollX);
-                    }
+                if (Math.abs(xVelocity) < mMinVelocityX && o != 0) {
+                    if (o >= mUnit / 2)
+                        scrollX = mUnit - o;
+                    else scrollX = -o;
+                    int dur = (int) (Math.abs((scrollX + 0f) / mUnit) * duration);
+                    brewAndStartAnimator(dur, (int) (scrollX));
+                }
             }
             return false;
         }
@@ -300,7 +319,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
                 scrollX = s;
             } else
                 scrollX = -o;
-            int dur = computeSettleDuration(Math.abs(scrollX), Math.abs(vel))/* (int) (3000f / Math.abs(velocityX) * duration)*/;
+            int dur = computeSettleDuration(Math.abs(scrollX), Math.abs(vel));
             brewAndStartAnimator(dur, scrollX);
             return true;
         }

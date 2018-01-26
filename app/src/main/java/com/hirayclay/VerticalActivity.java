@@ -37,6 +37,7 @@ public class VerticalActivity extends AppCompatActivity {
         config.maxStackCount = 4;
         config.initialStackCount = 4;
         config.space = 45;
+        config.parallex = 1.5f;
         config.align = Align.TOP;
         verticalRecyclerview.setLayoutManager(new StackLayoutManager(config));
         verticalRecyclerview.setAdapter(new StackAdapter(datas).vertical());
