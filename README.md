@@ -1,3 +1,6 @@
+[中文](static/README-cn.md)
+（因为目前代码组织得非常烂，仅仅是个玩具，如果有Item 增删操作的话最好不要用进项目，因为predictive动画并不支持。当初只是模仿着写，对RV的一整套东西并没有理解很透彻）
+
 # Why
 A long long time ago ,i was inspired by this project [android-pile-layout](https://github.com/xmuSistone/android-pile-layout) ,the author cannot find the appropriate math model with [LayoutManager](https://github.com/HirayClay/StackLayoutManager/blob/orientation/app/src/main/java/com/hirayclay/StackLayoutManager.java) .Now i have some spare time and try to do the UI with layoutManager,barely ok with the result.</br>
 
@@ -13,6 +16,10 @@ this is the relevant [blog](http://blog.csdn.net/u014296305/article/details/7349
 
 ### Demo Apk
 [download](static/app-vertical.apk)(vertical support)
+
+### Attention
+If you don't care about item ADD REMOVE operation, this is what you want,
+because predictive animation is not supported yet,otherwise take care!
 
 # Usage
 ```java
