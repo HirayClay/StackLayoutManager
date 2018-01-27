@@ -8,16 +8,11 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="HorizontalLL">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:orientation">horizontal</item>
-    </style>
 
-    <style name="Button">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textAllCaps">false</item>
-    </style>
-
+    <declare-styleable name="StackRecyclerView">
+        <attr name="max_stack" format="integer"/>
+        <attr name="initial_stack" format="integer"/>
+        <attr name="stack_space" format="dimension"/>
+        <attr name="secondary_scale" format="float"/>
+    </declare-styleable>
 </resources>

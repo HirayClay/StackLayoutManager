@@ -19,5 +19,12 @@ public class Config {
     public float secondaryScale;
     @FloatRange(from = 0f, to = 1f)
     public float scaleRatio;
-    public ItemChangeListener itemSelectedListener;
+    /**
+     * the real scroll distance might can fit requirement,
+     * so we multiply a factor
+     */
+    @FloatRange(from = 1f,to = 2f)
+    public float parallex = 1f;
+    Align align;
+
 }

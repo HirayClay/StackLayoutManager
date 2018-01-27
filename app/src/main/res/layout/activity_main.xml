@@ -8,31 +8,52 @@
     android:orientation="vertical"
     tools:context="com.hirayclay.MainActivity">
 
-    <LinearLayout style="@style/HorizontalLL">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/button"
-            style="@style/Button"
-            android:text="reset" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="left2right"
+            android:textAllCaps="false" />
 
         <Button
-            android:id="@+id/button_del"
-            style="@style/Button"
-            android:text="remove" />
+            android:id="@+id/button1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="right2left"
+            android:textAllCaps="false" />
 
         <Button
-            android:id="@+id/button_add"
-            style="@style/Button"
-            android:text="insert" />
+            android:id="@+id/button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="vertical"
+            android:textAllCaps="false" />
+
     </LinearLayout>
 
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:overScrollMode="never"
-        app:layoutManager="@string/StackLayoutManager"
+        app:layoutManager="@string/stacklayoutmanager"
         tools:listitem="@layout/item_card" />
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerview1"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:overScrollMode="never"
+        app:layoutManager="@string/stacklayoutmanager"
+        tools:listitem="@layout/item_card" />
+
+
 
 </LinearLayout>

@@ -2,8 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="150dp"
-    android:layout_height="100dp"
+    android:layout_width="360dp"
+    android:layout_height="460dp"
     android:padding="0dp">
 
 
@@ -15,6 +15,8 @@
         app:cardPreventCornerOverlap="false"
         app:cardCornerRadius="8dp"
         app:cardUseCompatPadding="true"
+        app:cardElevation="5dp"
+        android:translationZ="5dp"
         tools:targetApi="lollipop">
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/cover"
@@ -22,7 +24,7 @@
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
             app:riv_corner_radius="8dp"
-            android:src="@color/colorPrimary" />
+            tools:src="@color/colorPrimary" />
         <TextView
             android:id="@+id/index"
             android:layout_width="18dp"
