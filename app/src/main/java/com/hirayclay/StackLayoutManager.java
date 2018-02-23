@@ -61,6 +61,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     private VelocityTracker mVelocityTracker = VelocityTracker.obtain();
     private int pointerId;
     private Align direction = LEFT;
+    private int currentIndex = RecyclerView.NO_POSITION;
 
     StackLayoutManager(Config config) {
         this();
@@ -128,7 +129,9 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     /**
      * the magic function :).all the work including computing ,recycling,and layout is done here
      *
-     * @param recycler ...
+     * @param recycler {@link android.support.v7.widget.RecyclerView.Recycler}
+     * @param dy       scroll distance
+     * @param apply    true if apply parallex,but we don't when first layout process
      */
     private int fill(RecyclerView.Recycler recycler, int dy, boolean apply) {
         int delta = direction.layoutDirection * dy;
@@ -326,9 +329,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     };
 
     private int absMax(int a, int b) {
-        if (Math.abs(a) > Math.abs(b))
-            return a;
-        else return b;
+        return Math.max(Math.abs(a), Math.abs(b));
     }
 
     @Override
@@ -493,7 +494,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     public void setAnimateValue(int animateValue) {
         this.animateValue = animateValue;
         int dy = this.animateValue - lastAnimateValue;
-        fill(recycler, direction.layoutDirection * dy,false);
+        fill(recycler, direction.layoutDirection * dy, false);
         lastAnimateValue = animateValue;
     }
 

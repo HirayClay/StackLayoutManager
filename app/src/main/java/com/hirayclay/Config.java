@@ -20,8 +20,8 @@ public class Config {
     @FloatRange(from = 0f, to = 1f)
     public float scaleRatio;
     /**
-     * the real scroll distance might can fit requirement,
-     * so we multiply a factor
+     * the real scroll distance might meet requirement,
+     * so we multiply a factor fro parallex
      */
     @FloatRange(from = 1f,to = 2f)
     public float parallex = 1f;
