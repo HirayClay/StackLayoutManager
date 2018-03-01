@@ -329,7 +329,9 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     };
 
     private int absMax(int a, int b) {
-        return Math.max(Math.abs(a), Math.abs(b));
+        if (Math.abs(a) > Math.abs(b))
+            return a;
+        else return b;
     }
 
     @Override
