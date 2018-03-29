@@ -3,13 +3,15 @@ package com.hirayclay;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import static com.hirayclay.Align.BOTTOM;
 import static com.hirayclay.Align.LEFT;
@@ -61,7 +63,8 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     private VelocityTracker mVelocityTracker = VelocityTracker.obtain();
     private int pointerId;
     private Align direction = LEFT;
-    private int currentIndex = RecyclerView.NO_POSITION;
+    private RecyclerView mRV;
+    private Method sSetScrollState;
 
     StackLayoutManager(Config config) {
         this();
@@ -129,9 +132,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     /**
      * the magic function :).all the work including computing ,recycling,and layout is done here
      *
-     * @param recycler {@link android.support.v7.widget.RecyclerView.Recycler}
-     * @param dy       scroll distance
-     * @param apply    true if apply parallex,but we don't when first layout process
+     * @param recycler ...
      */
     private int fill(RecyclerView.Recycler recycler, int dy, boolean apply) {
         int delta = direction.layoutDirection * dy;
@@ -283,30 +284,30 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         return dy;
     }
 
-    private boolean settleWithouFling = false;
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-//            mVelocityTracker.addMovement(event);
+            mVelocityTracker.addMovement(event);
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 if (animator != null && animator.isRunning())
                     animator.cancel();
                 pointerId = event.getPointerId(0);
+
             }
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                Log.i(TAG, "onTouch: UPUPUP=====");
-                settleWithouFling = false;
+                if (v.isPressed()) v.performClick();
                 mVelocityTracker.computeCurrentVelocity(1000, 14000);
-                float xVelocity = VelocityTrackerCompat.getXVelocity(mVelocityTracker, pointerId);
+                float xVelocity = mVelocityTracker.getXVelocity(pointerId);
                 int o = mTotalOffset % mUnit;
                 int scrollX;
-//                if (Math.abs(xVelocity) < mMinVelocityX && o != 0) {
+                if (Math.abs(xVelocity) < mMinVelocityX && o != 0) {
                     if (o >= mUnit / 2)
                         scrollX = mUnit - o;
                     else scrollX = -o;
                     int dur = (int) (Math.abs((scrollX + 0f) / mUnit) * duration);
+                    Log.i(TAG, "onTouch: ======BREW===");
                     brewAndStartAnimator(dur, (int) (scrollX));
-//                }
+                }
             }
             return false;
         }
@@ -316,7 +317,6 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     private RecyclerView.OnFlingListener mOnFlingListener = new RecyclerView.OnFlingListener() {
         @Override
         public boolean onFling(int velocityX, int velocityY) {
-            Log.i(TAG, "onFling: ");
             int o = mTotalOffset % mUnit;
             int s = mUnit - o;
             int scrollX;
@@ -326,9 +326,9 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
             } else
                 scrollX = -o;
             int dur = computeSettleDuration(Math.abs(scrollX), Math.abs(vel));
-            Log.i(TAG, "onFling: scrollX "+scrollX);
             brewAndStartAnimator(dur, scrollX);
-            return false;
+            setScrollStateIdle();
+            return true;
         }
     };
 
@@ -341,6 +341,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onAttachedToWindow(RecyclerView view) {
         super.onAttachedToWindow(view);
+        mRV = view;
         //check when raise finger and settle to the appropriate item
         view.setOnTouchListener(mTouchListener);
 
@@ -362,7 +363,6 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
             @Override
             public void onAnimationEnd(Animator animation) {
                 lastAnimateValue = 0;
-                settleWithouFling = false;
             }
 
             @Override
@@ -484,12 +484,12 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
 
                 int baseStart = (int) (mSpace * maxStackCount + mUnit - tail + closestBaseItemScale * (mUnit - mSpace) + mSpace);
                 left = (int) (baseStart + (position - curPos - 2) * mUnit - (position - curPos - 2) * (1 - secondaryScale) * (mUnit - mSpace));
-//                if (BuildConfig.DEBUG)
-//                    Log.i(TAG, "ltr: curPos " + curPos
-//                            + "  pos:" + position
-//                            + "  left:" + left
-//                            + "   baseStart" + baseStart
-//                            + " curPos+1:" + left(curPos + 1));
+                if (BuildConfig.DEBUG)
+                    Log.i(TAG, "ltr: curPos " + curPos
+                            + "  pos:" + position
+                            + "  left:" + left
+                            + "   baseStart" + baseStart
+                            + " curPos+1:" + left(curPos + 1));
             }
             left = left <= 0 ? 0 : left;
         }
@@ -550,6 +550,21 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
         return new RecyclerView.LayoutParams(RecyclerView.LayoutParams.WRAP_CONTENT, RecyclerView.LayoutParams.WRAP_CONTENT);
+    }
+
+    /**
+     * we need to set scrollstate to {@link RecyclerView#SCROLL_STATE_IDLE} idle
+     * stop RV from intercepting the touch event which block the item click
+     */
+    private void setScrollStateIdle() {
+        try {
+            if (sSetScrollState == null)
+                sSetScrollState = RecyclerView.class.getDeclaredMethod("setScrollState", int.class);
+            sSetScrollState.setAccessible(true);
+            sSetScrollState.invoke(mRV, RecyclerView.SCROLL_STATE_IDLE);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 
     @SuppressWarnings("unused")
