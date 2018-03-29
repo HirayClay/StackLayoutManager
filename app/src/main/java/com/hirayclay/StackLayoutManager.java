@@ -283,28 +283,30 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
         return dy;
     }
 
+    private boolean settleWithouFling = false;
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            mVelocityTracker.addMovement(event);
+//            mVelocityTracker.addMovement(event);
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 if (animator != null && animator.isRunning())
                     animator.cancel();
                 pointerId = event.getPointerId(0);
             }
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                if (v.isPressed()) v.performClick();
+                Log.i(TAG, "onTouch: UPUPUP=====");
+                settleWithouFling = false;
                 mVelocityTracker.computeCurrentVelocity(1000, 14000);
                 float xVelocity = VelocityTrackerCompat.getXVelocity(mVelocityTracker, pointerId);
                 int o = mTotalOffset % mUnit;
                 int scrollX;
-                if (Math.abs(xVelocity) < mMinVelocityX && o != 0) {
+//                if (Math.abs(xVelocity) < mMinVelocityX && o != 0) {
                     if (o >= mUnit / 2)
                         scrollX = mUnit - o;
                     else scrollX = -o;
                     int dur = (int) (Math.abs((scrollX + 0f) / mUnit) * duration);
                     brewAndStartAnimator(dur, (int) (scrollX));
-                }
+//                }
             }
             return false;
         }
@@ -314,6 +316,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     private RecyclerView.OnFlingListener mOnFlingListener = new RecyclerView.OnFlingListener() {
         @Override
         public boolean onFling(int velocityX, int velocityY) {
+            Log.i(TAG, "onFling: ");
             int o = mTotalOffset % mUnit;
             int s = mUnit - o;
             int scrollX;
@@ -323,8 +326,9 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
             } else
                 scrollX = -o;
             int dur = computeSettleDuration(Math.abs(scrollX), Math.abs(vel));
+            Log.i(TAG, "onFling: scrollX "+scrollX);
             brewAndStartAnimator(dur, scrollX);
-            return true;
+            return false;
         }
     };
 
@@ -358,6 +362,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
             @Override
             public void onAnimationEnd(Animator animation) {
                 lastAnimateValue = 0;
+                settleWithouFling = false;
             }
 
             @Override
@@ -479,12 +484,12 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
 
                 int baseStart = (int) (mSpace * maxStackCount + mUnit - tail + closestBaseItemScale * (mUnit - mSpace) + mSpace);
                 left = (int) (baseStart + (position - curPos - 2) * mUnit - (position - curPos - 2) * (1 - secondaryScale) * (mUnit - mSpace));
-                if (BuildConfig.DEBUG)
-                    Log.i(TAG, "ltr: curPos " + curPos
-                            + "  pos:" + position
-                            + "  left:" + left
-                            + "   baseStart" + baseStart
-                            + " curPos+1:" + left(curPos + 1));
+//                if (BuildConfig.DEBUG)
+//                    Log.i(TAG, "ltr: curPos " + curPos
+//                            + "  pos:" + position
+//                            + "  left:" + left
+//                            + "   baseStart" + baseStart
+//                            + " curPos+1:" + left(curPos + 1));
             }
             left = left <= 0 ? 0 : left;
         }
