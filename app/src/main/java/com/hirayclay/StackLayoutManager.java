@@ -3,13 +3,15 @@ package com.hirayclay;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import static com.hirayclay.Align.BOTTOM;
 import static com.hirayclay.Align.LEFT;
@@ -61,6 +63,8 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     private VelocityTracker mVelocityTracker = VelocityTracker.obtain();
     private int pointerId;
     private Align direction = LEFT;
+    private RecyclerView mRV;
+    private Method sSetScrollState;
 
     StackLayoutManager(Config config) {
         this();
@@ -288,11 +292,12 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
                 if (animator != null && animator.isRunning())
                     animator.cancel();
                 pointerId = event.getPointerId(0);
+
             }
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 if (v.isPressed()) v.performClick();
                 mVelocityTracker.computeCurrentVelocity(1000, 14000);
-                float xVelocity = VelocityTrackerCompat.getXVelocity(mVelocityTracker, pointerId);
+                float xVelocity = mVelocityTracker.getXVelocity(pointerId);
                 int o = mTotalOffset % mUnit;
                 int scrollX;
                 if (Math.abs(xVelocity) < mMinVelocityX && o != 0) {
@@ -300,6 +305,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
                         scrollX = mUnit - o;
                     else scrollX = -o;
                     int dur = (int) (Math.abs((scrollX + 0f) / mUnit) * duration);
+                    Log.i(TAG, "onTouch: ======BREW===");
                     brewAndStartAnimator(dur, (int) (scrollX));
                 }
             }
@@ -321,6 +327,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
                 scrollX = -o;
             int dur = computeSettleDuration(Math.abs(scrollX), Math.abs(vel));
             brewAndStartAnimator(dur, scrollX);
+            setScrollStateIdle();
             return true;
         }
     };
@@ -334,6 +341,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onAttachedToWindow(RecyclerView view) {
         super.onAttachedToWindow(view);
+        mRV = view;
         //check when raise finger and settle to the appropriate item
         view.setOnTouchListener(mTouchListener);
 
@@ -493,7 +501,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     public void setAnimateValue(int animateValue) {
         this.animateValue = animateValue;
         int dy = this.animateValue - lastAnimateValue;
-        fill(recycler, direction.layoutDirection * dy,false);
+        fill(recycler, direction.layoutDirection * dy, false);
         lastAnimateValue = animateValue;
     }
 
@@ -542,6 +550,21 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
         return new RecyclerView.LayoutParams(RecyclerView.LayoutParams.WRAP_CONTENT, RecyclerView.LayoutParams.WRAP_CONTENT);
+    }
+
+    /**
+     * we need to set scrollstate to {@link RecyclerView#SCROLL_STATE_IDLE} idle
+     * stop RV from intercepting the touch event which block the item click
+     */
+    private void setScrollStateIdle() {
+        try {
+            if (sSetScrollState == null)
+                sSetScrollState = RecyclerView.class.getDeclaredMethod("setScrollState", int.class);
+            sSetScrollState.setAccessible(true);
+            sSetScrollState.invoke(mRV, RecyclerView.SCROLL_STATE_IDLE);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 
     @SuppressWarnings("unused")
