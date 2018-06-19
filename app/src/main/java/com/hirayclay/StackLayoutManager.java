@@ -66,7 +66,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     private Align direction = LEFT;
     private RecyclerView mRV;
     private Method sSetScrollState;
-    private int mPendingScrollPostion = NO_POSITION;
+    private int mPendingScrollPosition = NO_POSITION;
 
     StackLayoutManager(Config config) {
         this();
@@ -107,9 +107,9 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     //we need take direction into account when calc initialOffset
     private int resolveInitialOffset() {
         int offset = initialStackCount * mUnit;
-        if (mPendingScrollPostion != NO_POSITION) {
-            offset = mPendingScrollPostion * mUnit;
-            mPendingScrollPostion = NO_POSITION;
+        if (mPendingScrollPosition != NO_POSITION) {
+            offset = mPendingScrollPosition * mUnit;
+            mPendingScrollPosition = NO_POSITION;
         }
 
         if (direction == LEFT)
@@ -152,7 +152,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
             return fillFromRight(recycler, delta);
         if (direction == TOP)
             return fillFromTop(recycler, delta);
-        else return dy;
+        else return dy;//bottom alignment is not necessary,we don't support that
     }
 
     public int fill(RecyclerView.Recycler recycler, int dy) {
@@ -313,7 +313,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
                     else scrollX = -o;
                     int dur = (int) (Math.abs((scrollX + 0f) / mUnit) * duration);
                     Log.i(TAG, "onTouch: ======BREW===");
-                    brewAndStartAnimator(dur, (int) (scrollX));
+                    brewAndStartAnimator(dur, scrollX);
                 }
             }
             return false;
@@ -357,13 +357,13 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
 
     private int computeSettleDuration(int distance, float xvel) {
         float sWeight = 0.5f * distance / mUnit;
-        float velWeight = 0.5f * mMinVelocityX / xvel;
+        float velWeight = xvel > 0 ? 0.5f * mMinVelocityX / xvel : 0;
 
         return (int) ((sWeight + velWeight) * duration);
     }
 
-    private void brewAndStartAnimator(int dur, int finalX) {
-        animator = ObjectAnimator.ofInt(StackLayoutManager.this, "animateValue", 0, finalX);
+    private void brewAndStartAnimator(int dur, int finalXorY) {
+        animator = ObjectAnimator.ofInt(StackLayoutManager.this, "animateValue", 0, finalXorY);
         animator.setDuration(dur);
         animator.start();
         animator.addListener(new AnimatorListenerAdapter() {
@@ -447,7 +447,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
             case LEFT:
             case TOP:
                 //from left to right or top to bottom
-                //these two cases are actually same
+                //these two scenario are actually same
                 return ltr(position, currPos, tail, x);
             case RIGHT:
                 return rtl(position, currPos, tail, x);
@@ -576,8 +576,20 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void scrollToPosition(int position) {
-        mPendingScrollPostion = position;
-        requestLayout();
+        if (position > getItemCount() - 1) {
+            Log.i(TAG, "position is " + position + " but itemCount is " + getItemCount());
+            return;
+        }
+        int currPosition = mTotalOffset / mUnit;
+        int distance = (position - currPosition) * mUnit;
+        int dur = computeSettleDuration(Math.abs(distance), 0);
+        brewAndStartAnimator(dur, distance);
+    }
+
+    @Override
+    public void requestLayout() {
+        super.requestLayout();
+        initial = false;
     }
 
     @SuppressWarnings("unused")

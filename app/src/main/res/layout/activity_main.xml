@@ -34,6 +34,14 @@
             android:text="vertical"
             android:textAllCaps="false" />
 
+        <Button
+            android:id="@+id/scroll_to_specific_item"
+            android:text="scrollToPostion(10)"
+            android:textAllCaps="false"
+            android:textSize="10sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 
 

@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView hrRecyclerView;
     @Bind(R.id.button)
     Button button;
+    private StackLayoutManager layoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
         resetDefault();
         resetRight();
     }
-
 
 
     @OnClick(R.id.button)
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         config.initialStackCount = 2;
         config.space = 15;
         config.align = Align.LEFT;
-        recyclerview.setLayoutManager(new StackLayoutManager(config));
+        recyclerview.setLayoutManager(layoutManager = new StackLayoutManager(config));
         recyclerview.setAdapter(new StackAdapter(datas));
 
     }
@@ -75,6 +75,11 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.button2)
     public void viewVertical() {
-        startActivity(new Intent(this,VerticalActivity.class));
+        startActivity(new Intent(this, VerticalActivity.class));
+    }
+
+    @OnClick(R.id.scroll_to_specific_item)
+    public void onScrollToItem() {
+        layoutManager.scrollToPosition(10);
     }
 }
