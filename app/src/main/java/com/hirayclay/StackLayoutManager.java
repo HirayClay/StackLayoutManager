@@ -87,6 +87,8 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+        if (getItemCount() <= 0)
+            return;
         this.recycler = recycler;
         detachAndScrapAttachedViews(recycler);
         //got the mUnit basing on the first child,of course we assume that  all the item has the same size

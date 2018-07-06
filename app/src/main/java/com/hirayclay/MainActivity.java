@@ -9,19 +9,19 @@ import android.widget.Button;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    @Bind(R.id.recyclerview)
+    @BindView(R.id.recyclerview)
     RecyclerView recyclerview;
 
     //horizontal reverse recyclerview
-    @Bind(R.id.recyclerview1)
+    @BindView(R.id.recyclerview1)
     RecyclerView hrRecyclerView;
-    @Bind(R.id.button)
+    @BindView(R.id.button)
     Button button;
     private StackLayoutManager layoutManager;
 
@@ -38,9 +38,9 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.button)
     public void resetDefault() {
         List<String> datas = new ArrayList<>();
-        for (int i = 0; i < 15; i++) {
-            datas.add(String.valueOf(i));
-        }
+//        for (int i = 0; i < 15; i++) {
+//            datas.add(String.valueOf(i));
+//        }
 
         Config config = new Config();
         config.secondaryScale = 0.8f;
