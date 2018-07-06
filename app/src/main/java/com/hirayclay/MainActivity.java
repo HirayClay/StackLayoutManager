@@ -12,6 +12,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -24,12 +25,13 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.button)
     Button button;
     private StackLayoutManager layoutManager;
+    private Unbinder unbinder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
+        unbinder = ButterKnife.bind(this);
         resetDefault();
         resetRight();
     }
@@ -38,9 +40,9 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.button)
     public void resetDefault() {
         List<String> datas = new ArrayList<>();
-//        for (int i = 0; i < 15; i++) {
-//            datas.add(String.valueOf(i));
-//        }
+        for (int i = 0; i < 15; i++) {
+            datas.add(String.valueOf(i));
+        }
 
         Config config = new Config();
         config.secondaryScale = 0.8f;
@@ -81,5 +83,11 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.scroll_to_specific_item)
     public void onScrollToItem() {
         layoutManager.scrollToPosition(10);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbinder.unbind();
     }
 }
