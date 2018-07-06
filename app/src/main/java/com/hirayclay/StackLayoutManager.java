@@ -126,6 +126,8 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onLayoutCompleted(RecyclerView.State state) {
         super.onLayoutCompleted(state);
+        if (getItemCount()<=0)
+            return;
         if (!initial) {
             fill(recycler, initialOffset, false);
             initial = true;
