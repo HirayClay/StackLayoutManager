@@ -86,6 +86,11 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
+    public boolean isAutoMeasureEnabled() {
+        return  true;
+    }
+
+    @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         if (getItemCount() <= 0)
             return;
