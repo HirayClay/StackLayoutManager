@@ -4,19 +4,16 @@ buildscript {
     repositories {
         jcenter()
         google()
+        maven { url 'https://plugins.gradle.org/m2/' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.3'
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        //noinspection GradleDependency
+        classpath "gradle.plugin.com.github.sherter.google-java-format:google-java-format-gradle-plugin:0.8"
     }
 }
 
-plugins {
-    id "com.github.sherter.google-java-format" version "0.8"
-}
-
+apply plugin: 'com.github.sherter.google-java-format'
 apply from: "${rootDir}/config/google_java_format.gradle"
 
 
