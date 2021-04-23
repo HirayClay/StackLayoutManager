@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/StackLayoutManager.iml" filepath="$PROJECT_DIR$/.idea/StackLayoutManager.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/StackLayoutManager.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/StackLayoutManager.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/stack_layout/StackLayoutManager.stack_layout.iml" filepath="$PROJECT_DIR$/.idea/modules/stack_layout/StackLayoutManager.stack_layout.iml" />
     </modules>
   </component>
 </project>

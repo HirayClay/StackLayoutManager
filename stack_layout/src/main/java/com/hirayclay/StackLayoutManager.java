@@ -15,6 +15,7 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import androidx.recyclerview.widget.RecyclerView;
+import com.hirayclay.stack_layout.BuildConfig;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
