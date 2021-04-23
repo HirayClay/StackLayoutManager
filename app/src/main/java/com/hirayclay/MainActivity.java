@@ -1,6 +1,6 @@
 package com.hirayclay;
 
-import android.content.Intent;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,17 +14,14 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+  @SuppressLint("NonConstantResourceId")
   @BindView(R.id.recyclerview)
   RecyclerView recyclerview;
 
-  // horizontal reverse recyclerview
-  @BindView(R.id.recyclerview1)
-  RecyclerView hrRecyclerView;
-
+  @SuppressLint("NonConstantResourceId")
   @BindView(R.id.button)
   Button button;
 
-  private StackLayoutManager layoutManager;
   private Unbinder unbinder;
 
   @Override
@@ -33,14 +30,14 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
     unbinder = ButterKnife.bind(this);
     resetDefault();
-    resetRight();
   }
 
+  @SuppressLint("NonConstantResourceId")
   @OnClick(R.id.button)
   public void resetDefault() {
-    List<String> datas = new ArrayList<>();
+    List<String> list = new ArrayList<>();
     for (int i = 0; i < 15; i++) {
-      datas.add(String.valueOf(i));
+      list.add(String.valueOf(i));
     }
 
     Config config = new Config();
@@ -50,37 +47,8 @@ public class MainActivity extends AppCompatActivity {
     config.initialStackCount = 1;
     config.space = 15;
     config.align = Align.LEFT;
-    recyclerview.setLayoutManager(layoutManager = new StackLayoutManager(config));
-    recyclerview.setAdapter(new StackAdapter(datas));
-  }
-
-  @OnClick(R.id.button1)
-  public void resetRight() {
-    List<String> datas = new ArrayList<>();
-    for (int i = 0; i < 15; i++) {
-      datas.add(String.valueOf(i));
-    }
-
-    Config config = new Config();
-    config.secondaryScale = 0.8f;
-    config.scaleRatio = 0.4f;
-    config.maxStackCount = 4;
-    config.initialStackCount = 2;
-    config.space = getResources().getDimensionPixelOffset(R.dimen.item_space);
-
-    config.align = Align.RIGHT;
-    hrRecyclerView.setLayoutManager(new StackLayoutManager(config));
-    hrRecyclerView.setAdapter(new StackAdapter(datas));
-  }
-
-  @OnClick(R.id.button2)
-  public void viewVertical() {
-    startActivity(new Intent(this, VerticalActivity.class));
-  }
-
-  @OnClick(R.id.scroll_to_specific_item)
-  public void onScrollToItem() {
-    layoutManager.scrollToPosition(10);
+    recyclerview.setLayoutManager(new StackLayoutManager(config));
+    recyclerview.setAdapter(new StackAdapter(list));
   }
 
   @Override
