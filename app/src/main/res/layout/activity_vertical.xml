@@ -13,7 +13,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:overScrollMode="never"
-        app:layoutManager="@string/stacklayoutmanager"
         tools:listitem="@layout/item_card" />
 
 </LinearLayout>

@@ -50,7 +50,6 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:overScrollMode="never"
-        app:layoutManager="@string/stacklayoutmanager"
         tools:listitem="@layout/item_card" />
 
 
@@ -59,7 +58,6 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:overScrollMode="never"
-        app:layoutManager="@string/stacklayoutmanager"
         tools:listitem="@layout/item_card" />
 
 
