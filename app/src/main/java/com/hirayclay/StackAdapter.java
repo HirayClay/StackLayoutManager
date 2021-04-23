@@ -6,34 +6,16 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
-import java.util.Arrays;
 import java.util.List;
 
 /** Created by CJJ on 2017/3/7. */
 public class StackAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
   private LayoutInflater inflater;
-  private final List<String> list;
+  private final List<Integer> list;
   public Context context;
-  private final List<Integer> imageUrls =
-      Arrays.asList(
-          R.drawable.xm2,
-          R.drawable.xm3,
-          R.drawable.xm4,
-          R.drawable.xm5,
-          R.drawable.xm6,
-          R.drawable.xm7,
-          R.drawable.xm1,
-          R.drawable.xm8,
-          R.drawable.xm9,
-          R.drawable.xm1,
-          R.drawable.xm2,
-          R.drawable.xm3,
-          R.drawable.xm4,
-          R.drawable.xm5,
-          R.drawable.xm6);
 
-  public StackAdapter(List<String> list) {
+  public StackAdapter(List<Integer> list) {
     this.list = list;
   }
 
@@ -49,7 +31,7 @@ public class StackAdapter extends RecyclerView.Adapter<ItemViewHolder> {
 
   @Override
   public void onBindViewHolder(ItemViewHolder holder, int position) {
-    Glide.with(context).load(imageUrls.get(position)).into(holder.cover);
+    Glide.with(context).load(list.get(position)).into(holder.cover);
     holder.index.setText(list.get(holder.getAdapterPosition()));
   }
 

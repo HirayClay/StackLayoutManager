@@ -5,56 +5,51 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.bumptech.glide.Glide;
-import java.util.Arrays;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import java.util.List;
 
 /** Created by CJJ on 2017/3/7. */
-public class VerticalAdapter extends RecyclerView.Adapter<ItemViewHolder> {
+public class VerticalAdapter extends RecyclerView.Adapter<ViewHolder> {
 
-  private LayoutInflater inflater;
-  private final List<String> list;
+  private final List<Item> list;
   public Context context;
-  private final List<Integer> imageUrls =
-      Arrays.asList(
-          R.drawable.xm2,
-          R.drawable.xm3,
-          R.drawable.xm4,
-          R.drawable.xm5,
-          R.drawable.xm6,
-          R.drawable.xm7,
-          R.drawable.xm1,
-          R.drawable.xm8,
-          R.drawable.xm9,
-          R.drawable.xm1,
-          R.drawable.xm2,
-          R.drawable.xm3,
-          R.drawable.xm4,
-          R.drawable.xm5,
-          R.drawable.xm6);
 
-  public VerticalAdapter(List<String> list) {
+  public VerticalAdapter(List<Item> list, Context context) {
     this.list = list;
+    this.context = context;
   }
 
   @Override
   @NonNull
-  public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-    if (inflater == null) {
-      context = parent.getContext();
-      inflater = LayoutInflater.from(parent.getContext());
+  public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    switch (viewType) {
+      case ImageItem.TYPE_IMAGE_LIST:
+        return new NestedItemViewHolder(
+            LayoutInflater.from(context).inflate(R.layout.item_image_list, parent, false));
+      case TextItem.TYPE_TEXT:
+        return new TextItemViewHolder(
+            LayoutInflater.from(context).inflate(R.layout.item_text, parent, false));
+      default:
+        throw new RuntimeException();
     }
-    return new ItemViewHolder(inflater.inflate(R.layout.item_card, parent, false));
   }
 
   @Override
-  public void onBindViewHolder(ItemViewHolder holder, int position) {
-    Glide.with(context).load(imageUrls.get(position)).into(holder.cover);
-    holder.index.setText(list.get(holder.getAdapterPosition()));
+  public int getItemViewType(int position) {
+    return list.get(position).type();
+  }
+
+  @Override
+  public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    if (holder instanceof TextItemViewHolder) {
+      ((TextItemViewHolder) holder).bindText(((TextItem) list.get(position)).text);
+    } else if (holder instanceof NestedItemViewHolder) {
+      ((NestedItemViewHolder) holder).bind(((ImageItem) list.get(position)));
+    }
   }
 
   @Override
   public int getItemCount() {
-    return list == null ? 0 : list.size();
+    return list.size();
   }
 }
