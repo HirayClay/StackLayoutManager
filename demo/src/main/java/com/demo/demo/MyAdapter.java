@@ -28,9 +28,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
   @Override
   public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
     holder.bindData(dataList.get(position));
-    if (position == dataList.size() - 1) {
-      mainActivity.requestHttp();
-    }
   }
 
   @Override

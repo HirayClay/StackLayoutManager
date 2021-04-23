@@ -2,8 +2,6 @@ package com.hirayclay;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +21,6 @@ public class MainActivity extends AppCompatActivity {
   public int redColor, greenColor;
   public MyAdapter adapter;
 
-  private Handler handler;
   private int currentPage = 0;
 
   @Override
@@ -69,23 +66,6 @@ public class MainActivity extends AppCompatActivity {
     redColor = getResources().getColor(R.color.red);
     greenColor = getResources().getColor(R.color.green);
 
-    appendDataList();
-    adapter.notifyDataSetChanged();
-  }
-
-  private void refresh() {
-    currentPage = 0;
-    requestHttp();
-  }
-
-  public void requestHttp() {
-    if (null == handler) {
-      handler = new Handler(Looper.getMainLooper());
-    }
-    handler.postDelayed(this::execute, 900);
-  }
-
-  private void execute() {
     appendDataList();
     adapter.notifyDataSetChanged();
   }
