@@ -13,6 +13,13 @@ buildscript {
     }
 }
 
+plugins {
+    id "com.github.sherter.google-java-format" version "0.8"
+}
+
+apply from: "${rootDir}/config/google_java_format.gradle"
+
+
 allprojects {
     repositories {
         jcenter()
