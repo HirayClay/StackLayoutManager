@@ -45,10 +45,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Config config = new Config();
-        config.secondaryScale = 0.8f;
+        config.secondaryScale = 1.0f;
         config.scaleRatio = 0.4f;
-        config.maxStackCount = 4;
-        config.initialStackCount = 2;
+        config.maxStackCount = 1;
+        config.initialStackCount = 1;
         config.space = 15;
         config.align = Align.LEFT;
         recyclerview.setLayoutManager(layoutManager = new StackLayoutManager(config));
