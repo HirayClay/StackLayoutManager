@@ -18,17 +18,10 @@
     android:layout_height="wrap_content"
     app:title="Vega Manager" />
 
-
-  <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-    android:id="@+id/refresh_layout"
+  <androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/main_recycler_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content" />
 
-    <androidx.recyclerview.widget.RecyclerView
-      android:id="@+id/main_recycler_view"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content" />
-
-  </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </LinearLayout>

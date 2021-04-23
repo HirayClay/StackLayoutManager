@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.demo.demo.MyAdapter;
 import com.demo.demo.R;
 import com.demo.demo.StockEntity;
@@ -26,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
 
   private Handler handler;
   private int currentPage = 0;
-  private SwipeRefreshLayout refreshLayout;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -73,10 +71,6 @@ public class MainActivity extends AppCompatActivity {
 
     appendDataList();
     adapter.notifyDataSetChanged();
-
-    // 4. refreshLayout
-    refreshLayout = findViewById(R.id.refresh_layout);
-    refreshLayout.setOnRefreshListener(this::refresh);
   }
 
   private void refresh() {
@@ -92,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void execute() {
-    refreshLayout.setRefreshing(false);
     appendDataList();
     adapter.notifyDataSetChanged();
   }
