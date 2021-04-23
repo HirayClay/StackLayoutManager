@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
  *
  * @author CJJ
  */
-class StackLayoutManager extends RecyclerView.LayoutManager {
+public class StackLayoutManager extends RecyclerView.LayoutManager {
 
   private static final String TAG = "StackLayoutManager";
 
@@ -66,8 +66,7 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
   private Method sSetScrollState;
   private int mPendingScrollPosition = NO_POSITION;
 
-  StackLayoutManager(Config config) {
-    this();
+  public StackLayoutManager(Config config) {
     this.maxStackCount = config.maxStackCount;
     this.mSpace = config.space;
     this.initialStackCount = config.initialStackCount;
@@ -75,11 +74,6 @@ class StackLayoutManager extends RecyclerView.LayoutManager {
     this.scaleRatio = config.scaleRatio;
     this.direction = config.align;
     this.parallex = config.parallex;
-  }
-
-  @SuppressWarnings("unused")
-  public StackLayoutManager() {
-    setAutoMeasureEnabled(true);
   }
 
   @Override
