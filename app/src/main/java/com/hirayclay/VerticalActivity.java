@@ -20,10 +20,10 @@ public class VerticalActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_vertical);
     ButterKnife.bind(this);
-    vr();
+    load();
   }
 
-  private void vr() {
+  private void load() {
     List<String> datas = new ArrayList<>();
     for (int i = 0; i < 15; i++) {
       datas.add(String.valueOf(i));
@@ -43,10 +43,8 @@ public class VerticalActivity extends AppCompatActivity {
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
-    switch (item.getItemId()) {
-      case R.id.reset:
-        vr();
-        break;
+    if (item.getItemId() == R.id.reset) {
+      load();
     }
     return super.onOptionsItemSelected(item);
   }

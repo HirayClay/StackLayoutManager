@@ -162,7 +162,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     int itemCountAfterBaseItem = leavingSpace / unit + 2;
     int e = currPos + itemCountAfterBaseItem;
 
-    int start = currPos - maxStackCount >= 0 ? currPos - maxStackCount : 0;
+    int start = Math.max(currPos - maxStackCount, 0);
     int end = e >= getItemCount() ? getItemCount() - 1 : e;
 
     int left = getWidth() / 2 - itemWidth / 2;
@@ -204,7 +204,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     int itemCountAfterBaseItem = leavingSpace / unit + 2;
     int e = currPos + itemCountAfterBaseItem;
 
-    int start = currPos - maxStackCount <= 0 ? 0 : currPos - maxStackCount;
+    int start = Math.max(currPos - maxStackCount, 0);
     int end = e >= getItemCount() ? getItemCount() - 1 : e;
 
     // layout view
@@ -246,7 +246,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     int itemCountAfterBaseItem = leavingSpace / unit + 2;
     int e = currPos + itemCountAfterBaseItem;
 
-    int start = currPos - maxStackCount >= 0 ? currPos - maxStackCount : 0;
+    int start = Math.max(currPos - maxStackCount, 0);
     int end = e >= getItemCount() ? getItemCount() - 1 : e;
 
     // layout view
@@ -271,7 +271,7 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     return dy;
   }
 
-  private View.OnTouchListener mTouchListener =
+  private final View.OnTouchListener touchListener =
       new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
@@ -298,8 +298,9 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
         }
       };
 
-  private RecyclerView.OnFlingListener mOnFlingListener =
+  private final RecyclerView.OnFlingListener onFlingListener =
       new RecyclerView.OnFlingListener() {
+        @SuppressWarnings("SuspiciousNameCombination")
         @Override
         public boolean onFling(int velocityX, int velocityY) {
           int o = totalOffset % unit;
@@ -326,9 +327,8 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     super.onAttachedToWindow(view);
     recyclerView = view;
     // check when raise finger and settle to the appropriate item
-    view.setOnTouchListener(mTouchListener);
-
-    view.setOnFlingListener(mOnFlingListener);
+    view.setOnTouchListener(touchListener);
+    view.setOnFlingListener(onFlingListener);
   }
 
   private int computeSettleDuration(int distance, float xvel) {
@@ -486,12 +486,11 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
                   + " currPos+1:"
                   + left(currPos + 1));
       }
-      left = left <= 0 ? 0 : left;
+      left = Math.max(left, 0);
     }
     return left;
   }
 
-  @SuppressWarnings("unused")
   public void setAnimateValue(int animateValue) {
     this.animateValue = animateValue;
     int dy = this.animateValue - lastAnimateValue;
@@ -499,7 +498,6 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     lastAnimateValue = animateValue;
   }
 
-  @SuppressWarnings("unused")
   public int getAnimateValue() {
     return animateValue;
   }
@@ -580,7 +578,6 @@ public class StackLayoutManager extends RecyclerView.LayoutManager {
     initial = false;
   }
 
-  @SuppressWarnings("unused")
   public interface CallBack {
 
     float scale(int totalOffset, int position);

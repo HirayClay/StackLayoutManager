@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-  private static final String TAG = "MainActivity";
 
   @BindView(R.id.recyclerview)
   RecyclerView recyclerview;
