@@ -3,7 +3,7 @@ package com.hirayclay;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -13,7 +13,7 @@ import android.view.ViewConfiguration;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
+import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 import static com.hirayclay.Align.BOTTOM;
 import static com.hirayclay.Align.LEFT;
 import static com.hirayclay.Align.RIGHT;

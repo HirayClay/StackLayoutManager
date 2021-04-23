@@ -1,7 +1,7 @@
 package com.hirayclay;
 
-import android.support.annotation.FloatRange;
-import android.support.annotation.IntRange;
+import androidx.annotation.FloatRange;
+import androidx.annotation.IntRange;
 
 /**
  * Created by CJJ on 2017/6/20.

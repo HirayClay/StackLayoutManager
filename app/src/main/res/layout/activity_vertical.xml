@@ -7,7 +7,7 @@
     android:orientation="vertical"
     tools:context="com.hirayclay.VerticalActivity">
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview_vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
